@@ -11,9 +11,51 @@
         <Setter Property="Margin" Value="8,0,8,0"/>
         <Setter Property="Width" Value="1"/>
     </Style>
+    <Style x:Key="HorizontalSeparator" TargetType="Border">
+        <Setter Property="Background" Value="#B5AFA5"/>
+        <Setter Property="Margin" Value="0,2,0,2"/>
+        <Setter Property="Height" Value="1"/>
+    </Style>
     <Style x:Key="Menu1" TargetType="Menu">
-        <Setter Property="Background" Value="#FBFAF8"/>
+        <Setter Property="Background" Value="#EAFAF0"/>
         <Setter Property="BorderBrush" Value="#B5AFA5"/>
         <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+    <Style x:Key="Box1" TargetType="Border">
+        <Setter Property="Background" Value="#F5EFEC"/>
+        <Setter Property="BorderBrush" Value="#D0C0B0"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="4"/>
+    </Style>
+    <Style x:Key="Box2" TargetType="Border">
+        <Setter Property="Background" Value="#BBAA99"/>
+        <Setter Property="CornerRadius" Value="4"/>
+    </Style>
+    <Style x:Key="Box3" TargetType="Border">
+        <Setter Property="Background" Value="#B5AFA5"/>
+        <Setter Property="CornerRadius" Value="4"/>
+    </Style>
+    <Style x:Key="Text1" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="#706055"/>
+    </Style>
+    <Style x:Key="Text2" TargetType="TextBlock">
+        <Setter Property="Background" Value="#BB9988"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="TextAlignment" Value="Right"/>
+    </Style>
+    <Style x:Key="EventList" TargetType="DataGrid">
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="CanUserReorderColumns" Value="False"/>
+        <Setter Property="CanUserSortColumns" Value="False"/>
+    </Style>
+    <Style x:Key="MaterialIconButton" TargetType="Button">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+    <Style x:Key="MaterialIconCanvas" TargetType="Canvas">
+        <Setter Property="Width" Value="24"/>
+        <Setter Property="Height" Value="24"/>
     </Style>
 </ResourceDictionary>

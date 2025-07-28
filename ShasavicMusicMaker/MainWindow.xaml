@@ -5,21 +5,25 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ShasavicMusicMaker"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="ShasavicMusicMaker" Height="600" Width="1000">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Styles/Buttons/EditFile.xaml"/>
+                <ResourceDictionary Source="/Styles/Buttons/Player.xaml"/>
                 <ResourceDictionary Source="/Symbol/DimensionSymbol.xaml"/>
                 <ResourceDictionary Source="/Symbol/ToolQuantizeSymbol.xaml"/>
-                <ResourceDictionary Source="/Symbol/ZoomArrows.xaml"/>
+                <ResourceDictionary Source="/Styles/Buttons/ZoomArrow.xaml"/>
                 <ResourceDictionary Source="/Styles/MainStyle.xaml"/>
-                <ResourceDictionary Source="/Symbol/EditModeSymbols.xaml"/>
+                <ResourceDictionary Source="/Styles/Buttons/ScoreEditMode.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
-    <DockPanel>
+    <DockPanel Background="#FBFAF8">
         <Menu DockPanel.Dock="Top" Margin="1" VerticalAlignment="Top" Style="{StaticResource Menu1}">
-            <MenuItem Header="File(_F)"/>
+            <MenuItem Header="File(_F)">
+                <MenuItem Header="Load SF2" Click="LoadSF2Click"/>
+            </MenuItem>
             <MenuItem Header="Edit(_E)"/>
             <MenuItem Header="View(_V)"/>
             <MenuItem Header="Event(_N)"/>
@@ -29,208 +33,286 @@
             <MenuItem Header="Mark(_M)"/>
             <MenuItem Header="Help(_H)"/>
         </Menu>
-        <Border DockPanel.Dock="Top" Margin="4" BorderThickness="1" CornerRadius="4" Style="{StaticResource Border1}">
-            <WrapPanel Margin="2">
-                <Button Style="{StaticResource Pen}"/>
-                <Button Style="{StaticResource Select}"/>
-                <Button Style="{StaticResource Eraser}"/>
-                <Border Style="{StaticResource VerticalSeparator}"/>
-                <TextBlock Text="Scoreline" VerticalAlignment="Center"/>
-                <ComboBox VerticalAlignment="Center" Margin="4,0,0,0" SelectedIndex="1">
-                    <ComboBoxItem>
-                        <ComboBoxItem.Content>
-                            <StackPanel Orientation="Horizontal" Height="21">
-                                <TextBlock Text="41 edo" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </ComboBoxItem.Content>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <ComboBoxItem.Content>
-                            <StackPanel Orientation="Horizontal">
-                                <ContentControl Content="{StaticResource s1d}"/>
-                                <TextBlock Text="1D" Margin="4,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </ComboBoxItem.Content>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <ComboBoxItem.Content>
-                            <StackPanel Orientation="Horizontal">
-                                <ContentControl Content="{StaticResource s2d}"/>
-                                <TextBlock Text="2D" Margin="4,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </ComboBoxItem.Content>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <ComboBoxItem.Content>
-                            <StackPanel Orientation="Horizontal">
-                                <ContentControl Content="{StaticResource s3d}"/>
-                                <TextBlock Text="3D" Margin="4,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </ComboBoxItem.Content>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <ComboBoxItem.Content>
-                            <StackPanel Orientation="Horizontal">
-                                <ContentControl Content="{StaticResource s4d}"/>
-                                <TextBlock Text="4D" Margin="4,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </ComboBoxItem.Content>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <ComboBoxItem.Content>
-                            <StackPanel Orientation="Horizontal">
-                                <ContentControl Content="{StaticResource s5d}"/>
-                                <TextBlock Text="5D" Margin="4,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </ComboBoxItem.Content>
-                    </ComboBoxItem>
-                </ComboBox>
-                <Border Style="{StaticResource VerticalSeparator}"/>
-                <ComboBox ToolTip="Tool Quantize" VerticalAlignment="Center" SelectedIndex="5" MinWidth="110">
-                    <ComboBoxItem>
-                        <ComboBoxItem.Content>
-                            <StackPanel Orientation="Horizontal">
-                                <ContentControl Content="{StaticResource wTQ}"/>
-                                <TextBlock Text="W" Margin="8,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </ComboBoxItem.Content>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <ComboBoxItem.Content>
-                            <StackPanel Orientation="Horizontal">
-                                <ContentControl Content="{StaticResource dhTQ}"/>
-                                <TextBlock Text="Dotted H" Margin="8,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </ComboBoxItem.Content>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <ComboBoxItem.Content>
-                            <StackPanel Orientation="Horizontal">
-                                <ContentControl Content="{StaticResource hTQ}"/>
-                                <TextBlock Text="H" Margin="8,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </ComboBoxItem.Content>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <ComboBoxItem.Content>
-                            <StackPanel Orientation="Horizontal">
-                                <ContentControl Content="{StaticResource h3TQ}"/>
-                                <TextBlock Text="H Triplet" Margin="8,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </ComboBoxItem.Content>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <ComboBoxItem.Content>
-                            <StackPanel Orientation="Horizontal">
-                                <ContentControl Content="{StaticResource dqTQ}"/>
-                                <TextBlock Text="Dotted Q" Margin="8,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </ComboBoxItem.Content>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <ComboBoxItem.Content>
-                            <StackPanel Orientation="Horizontal">
-                                <ContentControl Content="{StaticResource qTQ}"/>
-                                <TextBlock Text="Q" Margin="8,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </ComboBoxItem.Content>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <ComboBoxItem.Content>
-                            <StackPanel Orientation="Horizontal">
-                                <ContentControl Content="{StaticResource q3TQ}"/>
-                                <TextBlock Text="Q Triplet" Margin="8,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </ComboBoxItem.Content>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <ComboBoxItem.Content>
-                            <StackPanel Orientation="Horizontal">
-                                <ContentControl Content="{StaticResource deTQ}"/>
-                                <TextBlock Text="Dotted E" Margin="8,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </ComboBoxItem.Content>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <ComboBoxItem.Content>
-                            <StackPanel Orientation="Horizontal">
-                                <ContentControl Content="{StaticResource eTQ}"/>
-                                <TextBlock Text="E" Margin="8,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </ComboBoxItem.Content>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <ComboBoxItem.Content>
-                            <StackPanel Orientation="Horizontal">
-                                <ContentControl Content="{StaticResource e3TQ}"/>
-                                <TextBlock Text="E Triplet" Margin="8,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </ComboBoxItem.Content>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <ComboBoxItem.Content>
-                            <StackPanel Orientation="Horizontal">
-                                <ContentControl Content="{StaticResource dxTQ}"/>
-                                <TextBlock Text="Dotted S" Margin="8,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </ComboBoxItem.Content>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <ComboBoxItem.Content>
-                            <StackPanel Orientation="Horizontal">
-                                <ContentControl Content="{StaticResource xTQ}"/>
-                                <TextBlock Text="S" Margin="8,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </ComboBoxItem.Content>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <ComboBoxItem.Content>
-                            <StackPanel Orientation="Horizontal">
-                                <ContentControl Content="{StaticResource x3TQ}"/>
-                                <TextBlock Text="S Triplet" Margin="8,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </ComboBoxItem.Content>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <ComboBoxItem.Content>
-                            <StackPanel Orientation="Horizontal">
-                                <ContentControl Content="{StaticResource dtTQ}"/>
-                                <TextBlock Text="Dotted T" Margin="8,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </ComboBoxItem.Content>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <ComboBoxItem.Content>
-                            <StackPanel Orientation="Horizontal">
-                                <ContentControl Content="{StaticResource tTQ}"/>
-                                <TextBlock Text="T" Margin="8,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </ComboBoxItem.Content>
-                    </ComboBoxItem>
-                    <ComboBoxItem>
-                        <ComboBoxItem.Content>
-                            <StackPanel Orientation="Horizontal">
-                                <ContentControl Content="{StaticResource t3TQ}"/>
-                                <TextBlock Text="T Triplet" Margin="8,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </ComboBoxItem.Content>
-                    </ComboBoxItem>
-                </ComboBox>
-                <Border Style="{StaticResource VerticalSeparator}"/>
-                <TextBlock Text="Gate:" VerticalAlignment="Center"/>
-                <TextBox Margin="4,0,0,0" Text="480" VerticalAlignment="Center" MinWidth="40"/>
-                <TextBlock Margin="8,0,0,0" Text="Vel:" VerticalAlignment="Center"/>
-                <TextBox Margin="4,0,0,0" Text="100" VerticalAlignment="Center" MinWidth="40"/>
-                <Border Style="{StaticResource VerticalSeparator}"/>
-                <Button Style="{StaticResource VZoomIN}"/>
-                <Button Style="{StaticResource VZoomOut}"/>
-                <Border Style="{StaticResource VerticalSeparator}"/>
-                <Button Style="{StaticResource HZoomIN}"/>
-                <Button Style="{StaticResource HZoomOut}"/>
-            </WrapPanel>
+        <Border DockPanel.Dock="Top" Margin="4" Padding="2" Style="{StaticResource Border1}">
+            <StackPanel>
+                <WrapPanel>
+                    <Button Style="{StaticResource NewFile}"/>
+                    <Button Style="{StaticResource OpenFile}"/>
+                    <ToggleButton x:Name="OpenRecentFileButton" Style="{StaticResource RecentFile}"/>
+                    <Popup PlacementTarget="{Binding ElementName=OpenRecentFileButton}"
+                            IsOpen="{Binding IsChecked, ElementName=OpenRecentFileButton, Mode=TwoWay}"
+                            StaysOpen="False"
+                            AllowsTransparency="True">
+                        <Border Background="White" BorderBrush="Gray" BorderThickness="1">
+                            <ListBox>
+                                <ListBoxItem Content="file1.txt"/>
+                                <ListBoxItem Content="file2.txt"/>
+                                <ListBoxItem Content="file3.txt"/>
+                            </ListBox>
+                        </Border>
+                    </Popup>
+                    <Button Style="{StaticResource SaveFile}"/>
+                    <Border Style="{StaticResource VerticalSeparator}"/>
+                    <Button Style="{StaticResource Undo}"/>
+                    <Button Style="{StaticResource Redo}"/>
+                    <Border Style="{StaticResource VerticalSeparator}"/>
+                    <Border Style="{StaticResource Box1}">
+                        <StackPanel Orientation="Horizontal" Margin="4,0">
+                            <TextBlock Style="{StaticResource Text1}" Text="MEAS" VerticalAlignment="Center" FontSize="10"/>
+                            <TextBlock Style="{StaticResource Text1}" Text="4" VerticalAlignment="Center" Margin="4,0" TextAlignment="Right" FontSize="18" MinWidth="50"/>
+                            <TextBlock Style="{StaticResource Text1}" Text=":" VerticalAlignment="Center" FontSize="18"/>
+                            <TextBlock Style="{StaticResource Text1}" Text="4" VerticalAlignment="Center" Margin="4,0" TextAlignment="Right" FontSize="18" MinWidth="50"/>
+                            <Border Style="{StaticResource VerticalSeparator}"/>
+                            <TextBlock Style="{StaticResource Text1}" Text="TEMPO" VerticalAlignment="Center" Margin="4,0" FontSize="10"/>
+                            <TextBlock Style="{StaticResource Text1}" Text="120.00" VerticalAlignment="Center" Margin="4,0" TextAlignment="Right" FontSize="18" MinWidth="70"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource VerticalSeparator}"/>
+                    <Button Style="{StaticResource Skip2Start}"/>
+                    <Button Style="{StaticResource StepLeft2}"/>
+                    <Button Style="{StaticResource StepLeft}"/>
+                    <ToggleButton Style="{StaticResource Play}"/>
+                    <Button Style="{StaticResource StepRight}"/>
+                    <Button Style="{StaticResource StepRight2}"/>
+                    <Button Style="{StaticResource Skip2End}"/>
+                </WrapPanel>
+                <Border Style="{StaticResource HorizontalSeparator}"/>
+                <WrapPanel>
+                    <ToggleButton Style="{StaticResource Pen}"/>
+                    <ToggleButton Style="{StaticResource Select}"/>
+                    <ToggleButton Style="{StaticResource Eraser}"/>
+                    <Border Style="{StaticResource VerticalSeparator}"/>
+                    <TextBlock Text="Scoreline" VerticalAlignment="Center"/>
+                    <ComboBox VerticalAlignment="Center" Margin="4,0,0,0" SelectedIndex="1">
+                        <ComboBoxItem>
+                            <ComboBoxItem.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <ContentControl Content="{StaticResource s1d}"/>
+                                    <TextBlock Text="1D" Margin="4,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </ComboBoxItem.Content>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <ComboBoxItem.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <ContentControl Content="{StaticResource s2d}"/>
+                                    <TextBlock Text="2D" Margin="4,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </ComboBoxItem.Content>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <ComboBoxItem.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <ContentControl Content="{StaticResource s3d}"/>
+                                    <TextBlock Text="3D" Margin="4,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </ComboBoxItem.Content>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <ComboBoxItem.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <ContentControl Content="{StaticResource s4d}"/>
+                                    <TextBlock Text="4D" Margin="4,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </ComboBoxItem.Content>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <ComboBoxItem.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <ContentControl Content="{StaticResource s5d}"/>
+                                    <TextBlock Text="5D" Margin="4,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </ComboBoxItem.Content>
+                        </ComboBoxItem>
+                    </ComboBox>
+                    <Border Style="{StaticResource VerticalSeparator}"/>
+                    <ComboBox ToolTip="Tool Quantize" VerticalAlignment="Center" SelectedIndex="5" MinWidth="110">
+                        <ComboBoxItem>
+                            <ComboBoxItem.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <ContentControl Content="{StaticResource wTQ}"/>
+                                    <TextBlock Text="W" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </ComboBoxItem.Content>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <ComboBoxItem.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <ContentControl Content="{StaticResource dhTQ}"/>
+                                    <TextBlock Text="Dotted H" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </ComboBoxItem.Content>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <ComboBoxItem.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <ContentControl Content="{StaticResource hTQ}"/>
+                                    <TextBlock Text="H" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </ComboBoxItem.Content>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <ComboBoxItem.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <ContentControl Content="{StaticResource h3TQ}"/>
+                                    <TextBlock Text="H Triplet" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </ComboBoxItem.Content>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <ComboBoxItem.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <ContentControl Content="{StaticResource dqTQ}"/>
+                                    <TextBlock Text="Dotted Q" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </ComboBoxItem.Content>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <ComboBoxItem.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <ContentControl Content="{StaticResource qTQ}"/>
+                                    <TextBlock Text="Q" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </ComboBoxItem.Content>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <ComboBoxItem.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <ContentControl Content="{StaticResource q3TQ}"/>
+                                    <TextBlock Text="Q Triplet" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </ComboBoxItem.Content>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <ComboBoxItem.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <ContentControl Content="{StaticResource deTQ}"/>
+                                    <TextBlock Text="Dotted E" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </ComboBoxItem.Content>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <ComboBoxItem.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <ContentControl Content="{StaticResource eTQ}"/>
+                                    <TextBlock Text="E" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </ComboBoxItem.Content>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <ComboBoxItem.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <ContentControl Content="{StaticResource e3TQ}"/>
+                                    <TextBlock Text="E Triplet" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </ComboBoxItem.Content>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <ComboBoxItem.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <ContentControl Content="{StaticResource dxTQ}"/>
+                                    <TextBlock Text="Dotted S" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </ComboBoxItem.Content>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <ComboBoxItem.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <ContentControl Content="{StaticResource xTQ}"/>
+                                    <TextBlock Text="S" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </ComboBoxItem.Content>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <ComboBoxItem.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <ContentControl Content="{StaticResource x3TQ}"/>
+                                    <TextBlock Text="S Triplet" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </ComboBoxItem.Content>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <ComboBoxItem.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <ContentControl Content="{StaticResource dtTQ}"/>
+                                    <TextBlock Text="Dotted T" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </ComboBoxItem.Content>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <ComboBoxItem.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <ContentControl Content="{StaticResource tTQ}"/>
+                                    <TextBlock Text="T" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </ComboBoxItem.Content>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <ComboBoxItem.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <ContentControl Content="{StaticResource t3TQ}"/>
+                                    <TextBlock Text="T Triplet" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </ComboBoxItem.Content>
+                        </ComboBoxItem>
+                    </ComboBox>
+                    <Border Style="{StaticResource VerticalSeparator}"/>
+                    <TextBlock Text="Gate:" VerticalAlignment="Center"/>
+                    <TextBox Margin="4,0,0,0" Text="480" VerticalAlignment="Center" MinWidth="40"/>
+                    <TextBlock Margin="8,0,0,0" Text="Vel:" VerticalAlignment="Center"/>
+                    <TextBox Margin="4,0,0,0" Text="100" VerticalAlignment="Center" MinWidth="40"/>
+                    <Border Style="{StaticResource VerticalSeparator}"/>
+                    <Button Style="{StaticResource VZoomIN}"/>
+                    <Button Style="{StaticResource VZoomOut}"/>
+                    <Border Style="{StaticResource VerticalSeparator}"/>
+                    <Button Style="{StaticResource HZoomIN}"/>
+                    <Button Style="{StaticResource HZoomOut}"/>
+                </WrapPanel>
+            </StackPanel>
         </Border>
-        <Canvas>
-            
-        </Canvas>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto" MinWidth="50"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*" MinWidth="50"/>
+            </Grid.ColumnDefinitions>
+            <Border Grid.Column="0" Style="{StaticResource Box3}" Margin="4,4,0,4">
+                <DataGrid x:Name="eventTable" Margin="1" FontSize="10" Style="{StaticResource EventList}" VerticalScrollBarVisibility="Visible">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Mea" Width="auto" Binding="{Binding MeaList}" ElementStyle="{StaticResource Text2}"/>
+                        <DataGridTextColumn Header="Tick" Width="auto" Binding="{Binding TickList}" ElementStyle="{StaticResource Text2}"/>
+                        <DataGridTextColumn Header="Step" Width="auto" Binding="{Binding StepList}" ElementStyle="{StaticResource Text2}"/>
+                        <DataGridTemplateColumn Header="Event" Width="100"/>
+                        <DataGridTextColumn Header="Gate" Width="auto" Binding="{Binding GateList}"/>
+                        <DataGridTextColumn Header="Vel/Value" Width="auto" Binding="{Binding items3}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+            <GridSplitter Grid.Column="1" 
+                  Width="6"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Stretch"
+                  Background="Transparent"
+                  ResizeBehavior="PreviousAndNext"
+                  ResizeDirection="Columns" />
+            <Grid Grid.Column="2" Margin="0,4,4,4">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="100"/>
+                </Grid.RowDefinitions>
+                <Border Grid.Row="0" Style="{StaticResource Box2}">
+                </Border>
+                <GridSplitter Grid.Row="1" Height="6"
+                              HorizontalAlignment="Stretch"
+                              VerticalAlignment="Center"
+                              Background="Transparent"
+                              ResizeBehavior="PreviousAndNext"
+                              ResizeDirection="Columns" />
+                <Border Grid.Row="2" Style="{StaticResource Box2}">
+                    
+                </Border>
+            </Grid>
+        </Grid>
     </DockPanel>
 </Window>
