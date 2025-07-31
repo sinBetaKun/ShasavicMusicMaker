@@ -12,22 +12,22 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Pdta
         /// <summary>
         /// プリセットの名前。終端文字(\0)含め20文字の文字列。
         /// </summary>
-        readonly string name;
+        public readonly string Name;
 
         /// <summary>
         /// MIDIプリセット番号。
         /// </summary>
-        readonly ushort presetno;
+        public readonly ushort Presetno;
 
         /// <summary>
         /// MIDIバンク番号
         /// </summary>
-        readonly ushort bank;
+        public readonly ushort Bank;
 
         /// <summary>
         /// pbagチャンクのインデックス
         /// </summary>
-        readonly ushort bagIndex;
+        public readonly ushort BagIndex;
 
         /// <summary>
         /// 将来的な拡張のために用意された変数。未使用で値は常に「0」。
@@ -48,10 +48,10 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Pdta
 
         public SF2PresetHeader(BinaryReader reader)
         {
-            name = Encoding.ASCII.GetString(reader.ReadBytes(20)).TrimEnd('\0');
-            presetno = reader.ReadUInt16();
-            bank = reader.ReadUInt16();
-            bagIndex = reader.ReadUInt16();
+            Name = Encoding.ASCII.GetString(reader.ReadBytes(20)).TrimEnd('\0');
+            Presetno = reader.ReadUInt16();
+            Bank = reader.ReadUInt16();
+            BagIndex = reader.ReadUInt16();
             library = reader.ReadUInt32();
             genre = reader.ReadUInt32();
             morph = reader.ReadUInt32();

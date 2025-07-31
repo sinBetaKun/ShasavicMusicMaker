@@ -10,19 +10,19 @@
         /// <summary>
         /// 変更するパラメータ(音量やフィルタのエンベロープ等)の番号(ジェネレータID)
         /// </summary>
-        ushort genOper;
+        public readonly ushort Oper;
 
         /// <summary>
         /// パラメータを変更する量
         /// </summary>
-        ushort genAmount;
+        public readonly ushort Amount;
 
         public static int Size => 4;
 
         public SF2Gen(BinaryReader reader)
         {
-            genOper = reader.ReadUInt16();
-            genAmount = reader.ReadUInt16();
+            Oper = reader.ReadUInt16();
+            Amount = reader.ReadUInt16();
         }
     }
 }

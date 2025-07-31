@@ -5,6 +5,7 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Sdta
     internal record SF2SdtaChunk
     {
         readonly SF2SmplChunk smpl;
+        readonly SF2Sm24Chunk? sm24;
 
         static string ID => "LIST";
         static string Type => "sdta";
@@ -26,7 +27,9 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Sdta
             smpl = new SF2SmplChunk(reader);
 
             if (size - 12 != smpl.Size)
-                throw new InvalidDataException($"{Type} chunk is invalid.");
+            {
+                sm24 = new(reader);
+            }
         }
     }
 }

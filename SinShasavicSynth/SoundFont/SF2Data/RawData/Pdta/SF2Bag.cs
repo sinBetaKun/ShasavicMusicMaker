@@ -9,7 +9,7 @@
         /// <summary>
         /// pgenチャンクのインデックス
         /// </summary>
-        ushort genIndex;
+        public ushort GenIndex;
 
         /// <summary>
         /// pmodチャンクのインデックス
@@ -20,7 +20,7 @@
 
         public SF2Bag(BinaryReader reader)
         {
-            genIndex = reader.ReadUInt16();
+            GenIndex = reader.ReadUInt16();
             modIndex = reader.ReadUInt16();
         }
     }

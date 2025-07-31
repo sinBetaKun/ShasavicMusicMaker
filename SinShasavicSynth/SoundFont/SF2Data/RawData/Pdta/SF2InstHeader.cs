@@ -11,19 +11,19 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Pdta
         /// <summary>
         /// インストルメントの名前。終端文字(\0)含め20文字の文字列。
         /// </summary>
-        string name;
+        public readonly string Name;
 
         /// <summary>
         /// ibagチャンクのインデックス
         /// </summary>
-        ushort bagIndex;
+        public readonly ushort BagIndex;
 
         public static int Size => 22;
 
         public SF2InstHeader(BinaryReader reader)
         {
-            name = Encoding.ASCII.GetString(reader.ReadBytes(20)).TrimEnd('\0');
-            bagIndex = reader.ReadUInt16();
+            Name = Encoding.ASCII.GetString(reader.ReadBytes(20)).TrimEnd('\0');
+            BagIndex = reader.ReadUInt16();
         }
     }
 }

@@ -11,8 +11,8 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData
 {
     internal record SF2RawData
     {
-        readonly SF2SdtaChunk sdta;
-        readonly SF2PdtaChunk pdta;
+        public readonly SF2SdtaChunk Sdta;
+        public readonly SF2PdtaChunk Pdta;
 
         public SF2RawData(string path)
         {
@@ -43,8 +43,8 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData
 
                 reader.BaseStream.Seek(sizeOfINFO - 4, SeekOrigin.Current);
 
-                sdta = new(reader);
-                pdta = new(reader);
+                Sdta = new(reader);
+                Pdta = new(reader);
             }
         }
     }

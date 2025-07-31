@@ -4,15 +4,15 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Pdta
 {
     internal record SF2PdtaChunk
     {
-        readonly SF2PhdrChunk phdr;
-        readonly SF2PbagChunk pbag;
-        readonly SF2PmodChunk pmod;
-        readonly SF2PgenChunk pgen;
-        readonly SF2InstChunk inst;
-        readonly SF2IbagChunk ibag;
-        readonly SF2ImodChunk imod;
-        readonly SF2IgenChunk igen;
-        readonly SF2ShdrChunk shdr;
+        public readonly SF2PhdrChunk Phdr;
+        public readonly SF2PbagChunk Pbag;
+        public readonly SF2PmodChunk Pmod;
+        public readonly SF2PgenChunk Pgen;
+        public readonly SF2InstChunk Inst;
+        public readonly SF2IbagChunk Ibag;
+        public readonly SF2ImodChunk Imod;
+        public readonly SF2IgenChunk Igen;
+        public readonly SF2ShdrChunk Shdr;
 
         static string ID => "LIST";
 
@@ -32,15 +32,15 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Pdta
             if (type != Type)
                 throw new InvalidDataException($"{Type} chunk isn't found.");
 
-            phdr = new SF2PhdrChunk(reader);
-            pbag = new SF2PbagChunk(reader);
-            pmod = new SF2PmodChunk(reader);
-            pgen = new SF2PgenChunk(reader);
-            inst = new SF2InstChunk(reader);
-            ibag = new SF2IbagChunk(reader);
-            imod = new SF2ImodChunk(reader);
-            igen = new SF2IgenChunk(reader);
-            shdr = new SF2ShdrChunk(reader);
+            Phdr = new SF2PhdrChunk(reader);
+            Pbag = new SF2PbagChunk(reader);
+            Pmod = new SF2PmodChunk(reader);
+            Pgen = new SF2PgenChunk(reader);
+            Inst = new SF2InstChunk(reader);
+            Ibag = new SF2IbagChunk(reader);
+            Imod = new SF2ImodChunk(reader);
+            Igen = new SF2IgenChunk(reader);
+            Shdr = new SF2ShdrChunk(reader);
         }
     }
 }

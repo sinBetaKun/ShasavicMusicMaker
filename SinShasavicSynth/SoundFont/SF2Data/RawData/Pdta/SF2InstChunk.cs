@@ -12,7 +12,7 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Pdta
     /// </summary>
     internal record SF2InstChunk
     {
-        readonly SF2InstHeader[] headers;
+        public readonly SF2InstHeader[] Headers;
 
         static string ID => "inst";
 
@@ -29,11 +29,11 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Pdta
             if (size % SF2InstHeader.Size != 0)
                 throw new InvalidDataException($"Size of {ID} chunk is wrong.");
 
-            headers = new SF2InstHeader[size / SF2InstHeader.Size];
+            Headers = new SF2InstHeader[size / SF2InstHeader.Size];
 
-            for (int i = 0; i < headers.Length; i++)
+            for (int i = 0; i < Headers.Length; i++)
             {
-                headers[i] = new(reader);
+                Headers[i] = new(reader);
             }
         }
     }

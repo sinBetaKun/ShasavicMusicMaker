@@ -5,7 +5,7 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Sdta
 {
     internal record SF2SmplChunk
     {
-        readonly ImmutableArray<short> samples;
+        readonly short[] samples;
 
         public readonly uint Size;
 
@@ -20,14 +20,12 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Sdta
 
             Size = reader.ReadUInt32();
             uint sampleCnt = Size / 2;
-            short[] preSamples = new short[sampleCnt];
+            samples = new short[sampleCnt];
 
             for (uint i = 0; i < sampleCnt; i++)
             {
-                preSamples[i] = reader.ReadInt16();
+                samples[i] = reader.ReadInt16();
             }
-
-            samples = [.. preSamples];
         }
     }
 }

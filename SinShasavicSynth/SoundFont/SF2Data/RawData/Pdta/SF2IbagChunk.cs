@@ -14,7 +14,7 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Pdta
     /// </summary>
     internal record SF2IbagChunk
     {
-        readonly SF2Bag[] bags;
+        public readonly SF2Bag[] Bags;
 
         static string ID => "ibag";
 
@@ -30,11 +30,11 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Pdta
             if (size % SF2Bag.Size != 0)
                 throw new InvalidDataException($"Size of {ID} chunk is wrong.");
 
-            bags = new SF2Bag[size / SF2Bag.Size];
+            Bags = new SF2Bag[size / SF2Bag.Size];
 
-            for (int i = 0; i < bags.Length; i++)
+            for (int i = 0; i < Bags.Length; i++)
             {
-                bags[i] = new(reader);
+                Bags[i] = new(reader);
             }
         }
     }
