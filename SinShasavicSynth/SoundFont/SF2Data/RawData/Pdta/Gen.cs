@@ -1,25 +1,25 @@
 ﻿namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Pdta
 {
     /// <summary>
-    /// pmod,imodチャンク内のジェネレーター用のレコード
+    /// pmod,imodチャンク内のジェネレーター用のクラス
     /// <br/>
     /// 詳細:https://www.utsbox.com/?p=2390
     /// </summary>
-    internal record SF2Gen
+    internal class Gen
     {
         /// <summary>
         /// 変更するパラメータ(音量やフィルタのエンベロープ等)の番号(ジェネレータID)
         /// </summary>
-        public readonly ushort Oper;
+        public ushort Oper { get; init; }
 
         /// <summary>
         /// パラメータを変更する量
         /// </summary>
-        public readonly ushort Amount;
+        public ushort Amount { get; init; }
 
         public static int Size => 4;
 
-        public SF2Gen(BinaryReader reader)
+        public Gen(BinaryReader reader)
         {
             Oper = reader.ReadUInt16();
             Amount = reader.ReadUInt16();

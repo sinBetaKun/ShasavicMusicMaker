@@ -3,10 +3,10 @@
 namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Pdta
 {
     /// <summary>
-    /// SoundFontファイル内のプリセットレベルにおけるすべてのジェネレータの情報が入ったチャンクです。
+    /// SoundFontファイル内のインストルメントレベルにおけるすべてのジェネレータの情報が入ったチャンクです。
     /// <br/>
-    /// ジェネレータとはマッピングや音量やフィルタのエンベロープ、
-    /// 割り当てインストルメント(楽器)等の設定情報になります。
+    /// ジェネレータとはマッピングや音声波形データの開始・終了位置や音量やフィルタのエンベロープ、
+    /// 割り当てサンプル(音声波形)等の設定情報になります。
     /// <br/>
     /// <br/>
     /// ゾーン内には変更のあるジェネレータのみが保存されている。
@@ -19,18 +19,18 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Pdta
     /// <br/>
     /// 3. その他のジェネレーターたち。
     /// <br/>
-    /// 4. instrumentジェネレータ(genOper=41)（ない場合、このゾーンはグローバルゾーンになる）
+    /// 4. sampleIDジェネレータ(genOper=53)（ない場合、このゾーンはグローバルゾーンになる）
     /// <br/>
-    /// 詳細:https://www.utsbox.com/?p=2090#pgen%E3%83%81%E3%83%A3%E3%83%B3%E3%82%AF
+    /// 詳細:https://www.utsbox.com/?p=2090#igen%E3%83%81%E3%83%A3%E3%83%B3%E3%82%AF
     /// https://www.utsbox.com/?p=2390
     /// </summary>
-    internal record SF2PgenChunk
+    internal class IgenChunk
     {
-        public readonly SF2Gen[] Gens;
+        public Gen[] Gens { get; init; }
 
-        static string ID => "pgen";
+        static string ID => "igen";
 
-        public SF2PgenChunk(BinaryReader reader)
+        public IgenChunk(BinaryReader reader)
         {
             string id = Encoding.ASCII.GetString(reader.ReadBytes(4));
 
@@ -39,10 +39,10 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Pdta
 
             uint size = reader.ReadUInt32();
 
-            if (size % SF2Gen.Size != 0)
+            if (size % Gen.Size != 0)
                 throw new InvalidDataException($"Size of {ID} chunk is wrong.");
 
-            Gens = new SF2Gen[size / SF2Gen.Size];
+            Gens = new Gen[size / Gen.Size];
 
             for (int i = 0; i < Gens.Length; i++)
             {

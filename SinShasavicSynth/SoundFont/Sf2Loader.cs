@@ -10,13 +10,12 @@ namespace SinShasavicSynthSF2.SoundFont
 {
     public class Sf2Loader
     {
-        SF2RawData? rawData;
-        PresetCollection? presets;
+        readonly BuiltSF2 builtData;
 
         public Sf2Loader(string path)
         {
-            rawData = new(path);
-            presets = new(rawData);
+            SF2RawData rawData = new(path);
+            builtData = new(rawData);
         }
     }
 }

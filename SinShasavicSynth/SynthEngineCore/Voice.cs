@@ -3,45 +3,81 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NAudio.Wave;
 using SinShasavicSynthSF2.Audio;
 using SinShasavicSynthSF2.ShasavicObject;
 using SinShasavicSynthSF2.SoundFont;
 
 namespace SinShasavicSynthSF2.SynthEngineCore
 {
-    internal class Voice
+    internal class Voice : ISampleProvider
     {
-        // 基本情報
-        ShasavicTone noteTone;
-        int vel;
-        int ch;
-        float freq;
+        private readonly float[] sampleBuffer;
+        private readonly int sampleRate;
+        private int position;
+        private bool isLooping;
+        private int loopStart;
+        private int loopEnd;
 
-        // 状態管理
-        bool isActive;              // このVoiceが現在有効か
-        bool isReleased;            // ノートオフ済みか
-        double startTime;           // 発音開始時刻（DSP時間など）
+        public WaveFormat WaveFormat { get; }
 
-        // サンプル再生用
-        Sample sample;              // 紐づくSF2の波形（PCMデータ）
-        int samplePosition;         // 再生位置（整数部）
-        float sampleFrac;           // 再生位置の小数部（補間のため）
-        float playbackRate;         // ピッチ変化に応じた再生速度
+        public bool IsFinished { get; private set; } = false;
 
-        // 音量変化（ADSR）
-        EnvelopeGenerator ampEnv;   // 音量のエンベロープ
-        float currentAmplitude;     // 現在の音量係数
+        public Voice(short[] pcmData, int sampleRate, int loopStart = -1, int loopEnd = -1)
+        {
+            this.sampleRate = sampleRate;
+            this.WaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1);
 
-        // モジュレーション
-        LFO pitchLFO;               // ピッチを揺らす（ビブラート）
-        LFO ampLFO;                 // 音量を揺らす（トレモロ）
+            // short[] → float[] に変換（-1.0～1.0）
+            this.sampleBuffer = new float[pcmData.Length];
+            for (int i = 0; i < pcmData.Length; i++)
+            {
+                this.sampleBuffer[i] = pcmData[i] / 32768f;
+            }
 
-        // パン、フィルター、CCなど
-        float pan;                  // -1.0（左）～1.0（右）
-        Filter filter;              // ローパス等
-        Dictionary<int, float> controllers; // CC値のキャッシュ（例：CC74 = カットオフ）
+            // ループ設定
+            this.isLooping = (loopStart >= 0 && loopEnd > loopStart);
+            this.loopStart = loopStart;
+            this.loopEnd = loopEnd;
+        }
 
-        // 出力先
-        AudioBuffer output;         // このVoiceが書き込む出力先バッファ（L/R）
+        public int Read(float[] buffer, int offset, int count)
+        {
+            if (IsFinished) return 0;
+
+            int samplesWritten = 0;
+            while (samplesWritten < count)
+            {
+                if (position >= sampleBuffer.Length)
+                {
+                    if (isLooping)
+                    {
+                        position = loopStart;
+                    }
+                    else
+                    {
+                        IsFinished = true;
+                        break;
+                    }
+                }
+
+                buffer[offset + samplesWritten] = sampleBuffer[position];
+                samplesWritten++;
+                position++;
+            }
+
+            return samplesWritten;
+        }
+
+        // releaseTimeMs は SF2の releaseVolEnv の値（ミリ秒）
+        float CalculateReleaseRate(float releaseTimeMs)
+        {
+            if (releaseTimeMs <= 0) return 0f;
+
+            // 1フレームあたりの減衰率を計算（指数関数的減衰）
+            float releaseSeconds = releaseTimeMs / 1000f;
+            float releaseRate = MathF.Exp(-1f / (releaseSeconds * sampleRate));
+            return releaseRate;
+        }
     }
 }

@@ -4,16 +4,16 @@ using SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Pdta;
 
 namespace SinShasavicSynthSF2.SoundFont.SF2Data.BuiltData
 {
-    internal record InstrumentZone
+    internal class InstrumentZone
     {
-        public readonly Dictionary<GeneratorType, ushort> Gens;
-        public readonly SF2SampleHeader? SmplHdr;
+        public Dictionary<GeneratorType, ushort> Gens { get; init; }
+        public SampleHeader_b[] SmplHdrs { get; init; }
 
-        public InstrumentZone(IEnumerable<SF2Gen> gens, SF2RawData raw)
+        public InstrumentZone(IEnumerable<Gen> gens, SF2RawData raw)
         {
             Gens = [];
 
-            foreach (SF2Gen gen in gens)
+            foreach (Gen gen in gens)
             {
                 if (gen.Oper < 256)
                 {
@@ -26,7 +26,29 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.BuiltData
 
             if (Gens.TryGetValue(GeneratorType.SampleID, out ushort sampleID))
             {
-                SmplHdr = raw.Pdta.Shdr.Headers[sampleID];
+                SampleHeader rawHeader1 = raw.Pdta.Shdr.Headers[sampleID];
+
+                switch (rawHeader1.Type)
+                {
+                    case 1:
+                        SmplHdrs = [new(rawHeader1)];
+                        break;
+                    case 2:
+                        SampleHeader rawHeader2 = raw.Pdta.Shdr.Headers[rawHeader1.SampleLink];
+                        SmplHdrs = [new(rawHeader2), new(rawHeader1)];
+                        break;
+                    case 4:
+                        SampleHeader rawHeader3 = raw.Pdta.Shdr.Headers[rawHeader1.SampleLink];
+                        SmplHdrs = [new(rawHeader1), new(rawHeader3)];
+                        break;
+                    default:
+                        SmplHdrs = [new(rawHeader1)];
+                        break;
+                }
+            }
+            else
+            {
+                SmplHdrs = [];
             }
         }
     }

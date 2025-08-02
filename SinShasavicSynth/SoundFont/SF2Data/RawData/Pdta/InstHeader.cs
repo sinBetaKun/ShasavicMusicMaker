@@ -3,24 +3,24 @@
 namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Pdta
 {
     /// <summary>
-    /// sf2のinstチャンク内のインストルメントヘッダー用のレコード
+    /// sf2のinstチャンク内のインストルメントヘッダー用のクラス
     /// 詳細:https://www.utsbox.com/?p=2090#inst%E3%83%81%E3%83%A3%E3%83%B3%E3%82%AF
     /// </summary>
-    internal record SF2InstHeader
+    internal class InstHeader
     {
         /// <summary>
         /// インストルメントの名前。終端文字(\0)含め20文字の文字列。
         /// </summary>
-        public readonly string Name;
+        public string Name { get; init; }
 
         /// <summary>
         /// ibagチャンクのインデックス
         /// </summary>
-        public readonly ushort BagIndex;
+        public ushort BagIndex { get; init; }
 
         public static int Size => 22;
 
-        public SF2InstHeader(BinaryReader reader)
+        public InstHeader(BinaryReader reader)
         {
             Name = Encoding.ASCII.GetString(reader.ReadBytes(20)).TrimEnd('\0');
             BagIndex = reader.ReadUInt16();

@@ -7,15 +7,15 @@ using System.Threading.Tasks;
 
 namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Sdta
 {
-    internal record SF2Sm24Chunk
+    internal class Sm24Chunk
     {
         //readonly byte[] samples;
 
-        public readonly uint Size;
+        public uint Size { get; init; }
 
         static string ID => "sm24";
 
-        public SF2Sm24Chunk(BinaryReader reader)
+        public Sm24Chunk(BinaryReader reader)
         {
             string id = Encoding.ASCII.GetString(reader.ReadBytes(4));
 

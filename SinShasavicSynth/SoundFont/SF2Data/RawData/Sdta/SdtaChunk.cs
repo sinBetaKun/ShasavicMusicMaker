@@ -2,15 +2,15 @@
 
 namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Sdta
 {
-    internal record SF2SdtaChunk
+    internal class SdtaChunk
     {
-        readonly SF2SmplChunk smpl;
-        readonly SF2Sm24Chunk? sm24;
+        public SmplChunk Smpl { get; init; }
+        readonly Sm24Chunk? sm24;
 
         static string ID => "LIST";
         static string Type => "sdta";
 
-        public SF2SdtaChunk(BinaryReader reader)
+        public SdtaChunk(BinaryReader reader)
         {
             string id = Encoding.ASCII.GetString(reader.ReadBytes(4));
 
@@ -24,9 +24,9 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Sdta
             if (type != Type)
                 throw new InvalidDataException($"{Type} chunk isn't found.");
 
-            smpl = new SF2SmplChunk(reader);
+            Smpl = new SmplChunk(reader);
 
-            if (size - 12 != smpl.Size)
+            if (size - 12 != Smpl.Size)
             {
                 sm24 = new(reader);
             }

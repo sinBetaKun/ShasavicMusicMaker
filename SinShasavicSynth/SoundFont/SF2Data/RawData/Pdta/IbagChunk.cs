@@ -3,22 +3,22 @@
 namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Pdta
 {
     /// <summary>
-    /// SoundFontファイル内のプリセットレベルにおけるすべてのバッグ情報が入ったチャンクです。
+    /// SoundFontファイル内のインストルメントレベルにおけるすべてのバッグ情報が入ったチャンクです。
     /// <br/>
     /// バッグはモジュレータとジェネレータをひとまとめにするためのもので、
     /// バッグ・モジュレータ・ジェネレータのかたまりをゾーンと言います。
     /// <br/>
-    /// 具体的に「どのパラメータをどうするか？」の情報はpgenチャンクとpmodチャンクに含まれています。
+    /// 具体的に「どのパラメータをどうするか？」の情報はigenチャンクとimodチャンクに含まれています。
     /// <br/>
-    /// 詳細:https://www.utsbox.com/?p=2090#pbag%E3%83%81%E3%83%A3%E3%83%B3%E3%82%AF
+    /// 詳細:https://www.utsbox.com/?p=2090#ibag%E3%83%81%E3%83%A3%E3%83%B3%E3%82%AF
     /// </summary>
-    internal record SF2PbagChunk
+    internal class IbagChunk
     {
-        public readonly SF2Bag[] Bags;
+        public Bag[] Bags { get; init; }
 
-        static string ID => "pbag";
+        static string ID => "ibag";
 
-        public SF2PbagChunk(BinaryReader reader)
+        public IbagChunk(BinaryReader reader)
         {
             string id = Encoding.ASCII.GetString(reader.ReadBytes(4));
 
@@ -27,10 +27,10 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Pdta
 
             uint size = reader.ReadUInt32();
 
-            if (size % SF2Bag.Size != 0)
+            if (size % Bag.Size != 0)
                 throw new InvalidDataException($"Size of {ID} chunk is wrong.");
 
-            Bags = new SF2Bag[size / SF2Bag.Size];
+            Bags = new Bag[size / Bag.Size];
 
             for (int i = 0; i < Bags.Length; i++)
             {

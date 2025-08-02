@@ -8,23 +8,23 @@ using SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Pdta;
 
 namespace SinShasavicSynthSF2.SoundFont.SF2Data.BuiltData
 {
-    internal record PresetZone
+    internal class PresetZone
     {
         /// <summary>
         /// ジェネレータ
         /// </summary>
-        public readonly Dictionary<GeneratorType, ushort> Gens;
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        public readonly Instrument? Inst;
+        public Dictionary<GeneratorType, ushort> Gens { get; init; }
 
-        public PresetZone(IEnumerable<SF2Gen> gens, SF2RawData raw)
+        /// <summary>
+        /// インストルメント
+        /// </summary>
+        public Instrument? Inst { get; init; }
+
+        public PresetZone(IEnumerable<Gen> gens, SF2RawData raw)
         {
             Gens = [];
 
-            foreach (SF2Gen gen in gens)
+            foreach (Gen gen in gens)
             {
                 if (gen.Oper < 256)
                 {

@@ -9,10 +9,10 @@ using SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Sdta;
 
 namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData
 {
-    internal record SF2RawData
+    internal class SF2RawData
     {
-        public readonly SF2SdtaChunk Sdta;
-        public readonly SF2PdtaChunk Pdta;
+        public SdtaChunk Sdta { get; init; }
+        public PdtaChunk Pdta { get; init; }
 
         public SF2RawData(string path)
         {

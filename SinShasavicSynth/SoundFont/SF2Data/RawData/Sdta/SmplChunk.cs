@@ -3,15 +3,15 @@ using System.Text;
 
 namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Sdta
 {
-    internal record SF2SmplChunk
+    internal class SmplChunk
     {
-        readonly short[] samples;
+        public short[] Samples { get; init; }
 
         public readonly uint Size;
 
         static string ID => "smpl";
 
-        public SF2SmplChunk(BinaryReader reader)
+        public SmplChunk(BinaryReader reader)
         {
             string id = Encoding.ASCII.GetString(reader.ReadBytes(4));
 
@@ -20,11 +20,11 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Sdta
 
             Size = reader.ReadUInt32();
             uint sampleCnt = Size / 2;
-            samples = new short[sampleCnt];
+            Samples = new short[sampleCnt];
 
             for (uint i = 0; i < sampleCnt; i++)
             {
-                samples[i] = reader.ReadInt16();
+                Samples[i] = reader.ReadInt16();
             }
         }
     }
