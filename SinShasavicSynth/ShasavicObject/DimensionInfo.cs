@@ -13,7 +13,7 @@ namespace SinShasavicSynthSF2.ShasavicObject
         /// このシンセで扱える最大の次元。
         /// または、次元の数。
         /// </summary>
-        public static readonly int MaxDimension = 5;
+        public static readonly int MaxDimension = 6;
 
         /// <summary>
         /// 各次元の倍率
@@ -25,6 +25,7 @@ namespace SinShasavicSynthSF2.ShasavicObject
             new(5,4),
             new(7,4),
             new(11,4),
+            new(13,4),
             ];
     }
 }

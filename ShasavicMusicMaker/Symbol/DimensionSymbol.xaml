@@ -1,30 +1,38 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Canvas x:Key="s1d" x:Shared="false" Width="18" Height="21">
+    <Canvas x:Key="s1d" x:Shared="false" Width="21" Height="21">
         <Line Canvas.Left="3" Canvas.Top="4" X1="2" Y1="11" X2="7" Y2="2" StrokeThickness="2" Stroke="#AAAAAA"/>
         <Ellipse Canvas.Left="3" Canvas.Top="13" Fill="#AAAAAA" Width="4" Height="4"/>
         <Ellipse Canvas.Left="8" Canvas.Top="4" Fill="#AAAAAA" Width="4" Height="4"/>
     </Canvas>
-    <Canvas x:Key="s2d" x:Shared="false" Width="18" Height="21">
+    <Canvas x:Key="s2d" x:Shared="false" Width="21" Height="21">
         <Path Canvas.Left="1" Canvas.Top="6" Data="M 2,9 L 12,9 L 15,1 L 5,1 Z" StrokeThickness="2" Stroke="#F27992"/>
     </Canvas>
-    <Canvas x:Key="s3d" x:Shared="false" Width="18" Height="21">
+    <Canvas x:Key="s3d" x:Shared="false" Width="21" Height="21">
         <Path Canvas.Left="3" Canvas.Top="3" Data="M 5,1 L 1,5 L 1,14 L 10,14 L14,10 L14,1 Z" StrokeThickness="2" Stroke="#6CD985"/>
         <Path Canvas.Left="3" Canvas.Top="3" Data="M 1,5 L 10,5 L 10,14" StrokeThickness="2" Stroke="#6CD985"/>
         <Line Canvas.Left="3" Canvas.Top="3" X1="10" Y1="5" X2="14" Y2="1" StrokeThickness="2" Stroke="#6CD985"/>
     </Canvas>
-    <Canvas x:Key="s4d" x:Shared="false" Width="18" Height="21">
+    <Canvas x:Key="s4d" x:Shared="false" Width="21" Height="21">
         <Path Canvas.Left="3" Canvas.Top="4" Data="M 5,1 L 1,5 L 1,14 L 10,14 L14,10 L14,1 Z" StrokeThickness="2" Stroke="#B598EE"/>
         <Path Canvas.Left="3" Canvas.Top="4" Data="M 1,5 L 10,5 L 10,14" StrokeThickness="2" Stroke="#B598EE"/>
         <Line Canvas.Left="3" Canvas.Top="4" X1="10" Y1="5" X2="14" Y2="1" StrokeThickness="2" Stroke="#B598EE"/>
         <Path Canvas.Left="1" Canvas.Top="1" Data="M 1,6 L 6,1 L 14,1" StrokeThickness="2" Stroke="#B598EE"/>
     </Canvas>
-    <Canvas x:Key="s5d" x:Shared="false" Width="18" Height="21">
+    <Canvas x:Key="s5d" x:Shared="false" Width="21" Height="21">
         <Path Data="M 1,10 L 1,20 L 10,20" StrokeThickness="2" Stroke="#FFC247"/>
         <Path Canvas.Left="3" Canvas.Top="3" Data="M 5,1 L 1,5 L 1,14 L 10,14 L14,10 L14,1 Z" StrokeThickness="2" Stroke="#FFC247"/>
         <Path Canvas.Left="3" Canvas.Top="3" Data="M 1,5 L 10,5 L 10,14" StrokeThickness="2" Stroke="#FFC247"/>
         <Line Canvas.Left="3" Canvas.Top="3" X1="10" Y1="5" X2="14" Y2="1" StrokeThickness="2" Stroke="#FFC247"/>
         <Path Canvas.Left="1" Data="M 1,6 L 6,1 L 14,1" StrokeThickness="2" Stroke="#FFC247"/>
+    </Canvas>
+    <Canvas x:Key="s6d" x:Shared="false" Width="21" Height="21">
+        <Path Data="M 15,19 l5,-5 l0,-8" StrokeThickness="2" Stroke="#B5B500"/>
+        <Path Data="M 1,10 L 1,20 L 10,20" StrokeThickness="2" Stroke="#B5B500"/>
+        <Path Canvas.Left="3" Canvas.Top="3" Data="M 5,1 L 1,5 L 1,14 L 10,14 L14,10 L14,1 Z" StrokeThickness="2" Stroke="#B5B500"/>
+        <Path Canvas.Left="3" Canvas.Top="3" Data="M 1,5 L 10,5 L 10,14" StrokeThickness="2" Stroke="#B5B500"/>
+        <Line Canvas.Left="3" Canvas.Top="3" X1="10" Y1="5" X2="14" Y2="1" StrokeThickness="2" Stroke="#B5B500"/>
+        <Path Canvas.Left="1" Data="M 1,6 L 6,1 L 14,1" StrokeThickness="2" Stroke="#B5B500"/>
     </Canvas>
 
     <Canvas x:Key="m1d" x:Shared="false" Height="23" Width="16">

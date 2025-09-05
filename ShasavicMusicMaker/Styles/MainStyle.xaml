@@ -35,6 +35,11 @@
         <Setter Property="Background" Value="#B5AFA5"/>
         <Setter Property="CornerRadius" Value="4"/>
     </Style>
+    <Style x:Key="Box4" TargetType="Border">
+        <Setter Property="BorderBrush" Value="#676681"/>
+        <Setter Property="BorderThickness" Value="4"/>
+        <Setter Property="CornerRadius" Value="4"/>
+    </Style>
     <Style x:Key="Text1" TargetType="TextBlock">
         <Setter Property="Foreground" Value="#706055"/>
     </Style>

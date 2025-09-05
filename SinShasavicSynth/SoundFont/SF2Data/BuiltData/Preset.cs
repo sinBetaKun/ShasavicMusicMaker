@@ -122,7 +122,7 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.BuiltData
 
             foreach (PresetZone zone in matcheds1)
             {
-                if (zone.Gens.TryGetValue(GeneratorType.KeyRange, out ushort value))
+                if (zone.Gens.TryGetValue(GeneratorType.VelRange, out ushort value))
                 {
                     byte maxVel = (byte)(value >> 8);
                     byte minVel = (byte)(value & 0xFF);

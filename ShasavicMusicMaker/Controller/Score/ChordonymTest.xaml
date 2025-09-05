@@ -1,0 +1,24 @@
+﻿<Window x:Class="ShasavicMusicMaker.Controller.Score.ChordonymTest"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ShasavicMusicMaker.Controller.Score"
+        mc:Ignorable="d"
+        Title="ChordonymTest" Height="450" Width="800" Background="Black">
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Left">
+            <Button Content="Pop" Click="Pop_Click"/>
+            <Button Content="1d" Click="Add_1d_Click"/>
+            <Button Content="2d" Click="Add_2d_Click"/>
+            <Button Content="3d" Click="Add_3d_Click"/>
+            <Button Content="4d" Click="Add_4d_Click"/>
+            <Button Content="5d" Click="Add_5d_Click"/>
+            <Button Content="6d" Click="Add_6d_Click"/>
+            <Button x:Name="toggle" Content=" [up] " Click="toggle_Click"/>
+        </StackPanel>
+        <Canvas>
+            <local:ChordonymViewer x:Name="Viewer" Canvas.Left="100" Canvas.Top="200"/>
+        </Canvas>
+    </DockPanel>
+</Window>

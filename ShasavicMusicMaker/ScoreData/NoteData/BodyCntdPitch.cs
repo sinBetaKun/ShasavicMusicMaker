@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ShasavicMusicMaker.DimensionData;
 using ShasavicMusicMaker.Enum;
 
 namespace ShasavicMusicMaker.ScoreData.NoteData
@@ -32,7 +33,7 @@ namespace ShasavicMusicMaker.ScoreData.NoteData
         /// <param name="scending">上下符の向き（上向きならtrue）</param>
         public BodyCntdPitch(int dimension, bool scending)
         {
-            if (dimension < 0 || dimension > BaseAnsFormula.MaxDimension)
+            if (dimension < 0 || dimension > DimensionInfo.MaxDimension)
             {
                 Dimension = -1;
             }

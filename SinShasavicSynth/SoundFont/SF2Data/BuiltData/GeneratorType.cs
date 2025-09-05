@@ -8,9 +8,9 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.BuiltData
 {
     internal enum GeneratorType : byte
     {
-        delayVolEnv = 33,
         attackVolEnv = 34,
         decayVolEnv = 36,
+        sustainVolEnv = 37,
         releaseVolEnv = 38,
         Instrument = 41,
         KeyRange = 43,

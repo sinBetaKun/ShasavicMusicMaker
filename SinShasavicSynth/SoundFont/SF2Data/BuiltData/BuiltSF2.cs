@@ -5,14 +5,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SinShasavicSynthSF2.SoundFont.SF2Data.RawData;
+using SinShasavicSynthSF2.SynthEngineCore;
+using SinShasavicSynthSF2.SynthEngineCore.Voice;
 
 namespace SinShasavicSynthSF2.SoundFont.SF2Data.BuiltData
 {
     internal class BuiltSF2
     {
-        readonly Preset[] presets;
+        private Preset[] presets { get; init; }
 
-        readonly float[] samples;
+        public float[] Samples { get; init; }
+
+        public int SampleRate { get; init; }
 
         public BuiltSF2(SF2RawData raw)
         {
@@ -23,15 +27,43 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.BuiltData
                 presets[i] = new(i, raw);
             }
 
-            samples = new float[raw.Sdta.Smpl.Samples.Length];
+            Samples = new float[raw.Sdta.Smpl.Samples.Length];
 
-            for (int i = 0; i < samples.Length; i++)
+            for (int i = 0; i < Samples.Length; i++)
             {
-                samples[i] = raw.Sdta.Smpl.Samples[i];
+                Samples[i] = raw.Sdta.Smpl.Samples[i];
             }
+
+            SampleRate = (int)raw.Pdta.Shdr.Headers[0].SampleRate;
         }
 
-        public List<InstrumentRegion> GetInstrumentRegions(ushort presetNo, ushort bank, byte key, byte vel)
+        public List<VoiceBase> GetVoices(ushort presetNo, ushort bank, byte key, byte vel)
+        {
+            List<VoiceBase> voices = [];
+
+            List<InstrumentRegion> regions = GetInstrumentRegions(presetNo, bank, key, vel);
+
+            foreach (InstrumentRegion region in regions)
+            {
+                SampleHeader_b[] headers = region.SmplHdrs;
+
+                switch (headers.Length)
+                {
+                    case 1:
+                        MonoVoice mono = new(this, region);
+                        voices.Add(mono);
+                        break;
+                    case 2:
+                        StereoVoice stereo = new(this, region);
+                        voices.Add(stereo);
+                        break;
+                }
+            }
+
+            return voices;
+        }
+
+        private List<InstrumentRegion> GetInstrumentRegions(ushort presetNo, ushort bank, byte key, byte vel)
         {
             Preset? preset = presets.FirstOrDefault(
                 p => (p.Presetno == presetNo) && (p.Bank == bank));

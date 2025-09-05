@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Documents;
+using ShasavicMusicMaker.DimensionData;
 
 namespace ShasavicMusicMaker.ScoreData.NoteData
 {
@@ -44,9 +46,10 @@ namespace ShasavicMusicMaker.ScoreData.NoteData
         /// 既存の別の腕と、底音基準の組成式が重複する可能性がある。
         /// </summary>
         /// <param name="origin">コピー元の腕</param>
-        /// <param name="parent">体にしたい腕</param>
-        private Arm(Arm origin, Arm parent)
+        /// <param name="body">体にしたい腕</param>
+        private Arm(Arm origin, Arm body)
         {
+            Body = body;
             Bcp = new(origin.Bcp);
             Arms = new List<Arm>(origin.Arms.Count);
 
@@ -58,156 +61,163 @@ namespace ShasavicMusicMaker.ScoreData.NoteData
         }
 
         /// <summary>
-        /// 体始音高を変更する。
-        /// この腕が底音であるときは無条件でfalseを返し、変更を行わない。
-        /// 
-        /// secure が true の場合、
-        /// 変更後、自身や子要素の腕と組成式が同じ腕が重複する場合、falseを返して変更はしない。
-        /// 重複しない場合はtrueを返す。
-        /// このソフトは、１つのコードニムに
-        /// 同じ組成式を持つ腕を２つ以上持たせることができない。
-        /// 
-        /// secure が false の場合は、重複が発生した際にマージを行い、
-        /// 自身が重複している場合はfalseを返す。
-        /// していない場合はtrueを返す。
+        /// 新たに腕を追加する。
+        /// 組成式が別の腕と一致する場合、追加せずに(false, 重複先)を返す。
+        /// 重複が無ければ(true, 新しく追加した腕)を返す。
         /// </summary>
-        /// <param name="secure"></param>
-        /// <param name="bcp1">変更後の体始音高</param>
-        /// <returns>変更したならtrue</returns>
-        public bool ChangeBodyCntdPitch_s(BodyCntdPitch bcp1, bool secure)
+        /// <param name="pitch"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public (bool, Arm) AddArm(BodyCntdPitch pitch)
+        {
+            if (pitch.Dimension < 1)
+                throw new Exception("can't add invalid dimension arm.");
+
+            // 底音と組成式を取得
+            BaseAndFormula baf = BaseAndFormula.CalcBaseAndFomulaOfArm(this);
+
+            baf.Formula[pitch.Dimension - 1] += pitch.Scending ? 1 : -1;
+
+            // コードニム上の全ての腕とその組成式を取得
+            Dictionary<BaseAndFormula, Arm> allArms_base = BaseAndFormula.GetArmsDictOfChordonym(baf.Base);
+
+            foreach (BaseAndFormula baf2 in allArms_base.Keys)
+            {
+                // 腕の組成式が一致した場合
+                if (baf2.Formula.SequenceEqual(baf.Formula))
+                {
+                    // 組成式の一致する腕を返す。
+                    return (false, allArms_base[baf2]);
+                }
+            }
+
+            Arm ret = new()
+            {
+                Body = this,
+                Bcp = pitch,
+            };
+
+            Arms.Add(ret);
+
+            return (true, ret);
+        }
+
+        /// <summary>
+        /// 体始音高を変更する。
+        /// この腕が底音であるときはエラーを吐く。
+        /// <br/>
+        /// secure が true の場合、
+        /// 変更後、自身や子要素の腕と組成式が同じ腕が重複する場合、変更はしない。
+        /// <br/>
+        /// secure が false の場合は、重複が発生した際にマージを行う。
+        /// </summary>
+        /// <param name="pitch">変更後の体始音高</param>
+        /// <param name="secure">セキュアモード</param>
+        /// <returns>重複する腕と重複先の腕の辞書</returns>
+        public Dictionary<Arm, Arm> ChangeBodyCntdPitch_s(BodyCntdPitch pitch, bool secure)
         {
             if (Body is null)
-            {
-                return false;
-            }
+                throw new Exception("can't use body for this method");
 
-            BaseAnsFormula baf = BaseAnsFormula.CalcBafOfArm(this);
-            List<ImmutableArray<int>> newFormulas = [];
-            ImmutableArray<Arm> oldArms1 = [this];
-            List<Arm> oldArms2 = [];
-            ImmutableArray<ImmutableArray<int>> oldFormulas1 = [baf.Formula];
-            List<ImmutableArray<int>> oldFormulas2 = [];
-            List<Arm> sortedArms1 = new(Arms.Count); // secure = true の時のみ使用。
-            List<Arm> sortedArms2 = new(Arms.Count); // secure = true の時のみ使用。
-            while (oldArms1.Length > 0)
-            {
-                for (int i = 0; i < oldFormulas1.Length; i++)
-                {
-                    Arm oldArm1 = oldArms1[i];
-                    ImmutableArray<int> oldFormula1 = oldFormulas1[i];
-                    int newScedingA = oldFormula1[bcp1.Dimension] + (bcp1.Scending ? 1 : -1);
-                    int newScedingB = oldFormula1[Bcp.Dimension] + (Bcp.Scending ? -1 : 1);
-                    ImmutableArray<int> newFormula = baf.Formula
-                        .SetItem(bcp1.Dimension, newScedingA)
-                        .SetItem(Bcp.Dimension, newScedingB);
-                    newFormulas.Add(newFormula);
-                    sortedArms1.Add(oldArm1);
-                    sortedArms2.Add(oldArm1);
-
-                    foreach (Arm oldArm2 in oldArm1.Arms)
-                    {
-                        oldArms2.Add(oldArm2);
-                        int oldSceding = oldFormula1[oldArm2.Bcp.Dimension] + (oldArm2.Bcp.Scending ? 1 : -1);
-                        ImmutableArray<int> oldFormula2 = oldFormula1.SetItem(oldArm2.Bcp.Dimension, oldSceding);
-                        oldFormulas2.Add(oldFormula2);
-                    }
-                }
-
-                oldArms1 = [.. oldArms2];
-                oldArms2.Clear();
-                oldFormulas1 = [.. oldFormulas2];
-                oldFormulas2.Clear();
-            }
+            // 底音と組成式を取得
+            BaseAndFormula baf = BaseAndFormula.CalcBaseAndFomulaOfArm(this);
 
             // 一度Bodyからこの腕にアクセスできなくする。
             Body.Arms.Remove(this);
 
-            ImmutableArray<Arm> arms1 = [baf.Base];
-            List<Arm> arms2 = [];
-            ImmutableArray<ImmutableArray<int>> formulas1 = [[.. Enumerable.Repeat(0, BaseAnsFormula.MaxDimension)]];
-            List<ImmutableArray<int>> formulas2 = [];
+            // この腕を除いた状態における、コードニム上の全ての腕とその組成式を取得
+            Dictionary<BaseAndFormula, Arm> allArms_base = BaseAndFormula.GetArmsDictOfChordonym(baf.Base);
 
-            while (arms1.Length != 0)
+            // この腕上の子要素の全ての腕とその組成式を取得（自身も含む）
+            Dictionary<BaseAndFormula, Arm> allArms_this = BaseAndFormula.GetArmsDictOfChordonym(this);
+
+            // 体始音高を変更すると重複先が発声する腕をキーとし、重複先の腕をバリューとする辞書
+            Dictionary<Arm, Arm> warningArms = [];
+
+            // 組成式の一致する腕を辞書に登録
+            foreach (var item in allArms_this)
             {
-                for (int i = 0; i < arms1.Length; i++)
+                BaseAndFormula ibaf = item.Key;
+                Arm iarm = item.Value;
+
+                int[] newFormula = [.. ibaf.Formula];
+                newFormula[pitch.Dimension] += pitch.Scending ? 1 : -1;
+
+                foreach (BaseAndFormula ibaf2 in allArms_base.Keys)
                 {
-                    Arm arm1 = arms1[i];
-                    ImmutableArray<int> formula1 = formulas1[i];
-
-                    foreach (Arm arm2 in arm1.Arms)
-                    {
-                        BodyCntdPitch bcp2 = arm2.Bcp;
-                        int newSceding = formula1[bcp2.Dimension] + (bcp2.Scending ? 1 : -1);
-                        ImmutableArray<int> formula2 = formula1.SetItem(bcp2.Dimension, newSceding);
-
-                        foreach (ImmutableArray<int> newFormula in newFormulas)
-                        {
-                            if (formula2.SequenceEqual(newFormula))
-                            {
-                                if (secure)
-                                {
-                                    // Bodyからこの腕にアクセスできるようにする。
-                                    Body.Arms.Add(this);
-                                    return false;
-                                }
-                                else
-                                {
-                                    int index = newFormulas.IndexOf(newFormula);
-                                    sortedArms2[index] = arm2;
-                                }
-                            }
-                        }
-
-                        arms2.Add(arm2);
-                        formulas2.Add(formula2);
-                    }
-                }
-
-                arms1 = [.. arms2];
-                arms2.Clear();
-                formulas1 = [.. formulas2];
-                formulas2.Clear();
-            }
-
-            if (!secure)
-            {
-                List<Arm> bodyChangeds1 = [];
-
-                // Body の置き換え
-                for (int i = 0; i < sortedArms1.Count; i++)
-                {
-                    Arm arm1 = sortedArms1[i];
-                    Arm arm2 = sortedArms2[i];
-
-                    if (arm1 != arm2)
-                    {
-                        bodyChangeds1.Remove(arm1);
-
-                        List<Arm> bodyChangeds2 = sortedArms1.FindAll(arm => arm.Body == arm1);
-                        bodyChangeds2.ForEach(arm =>
-                        {
-                            arm.Body = arm2;
-                            bodyChangeds1.Add(arm);
-                        });
-
-                        arm1.Body = null;
-                        arm1.Arms.Clear();
-                    }
-                }
-
-                // 各BodyのArmsに追加
-                bodyChangeds1.ForEach(arm => arm.Body.Arms.Add(arm));
-
-                if (sortedArms2[0] != this)
-                {
-                    return false;
+                    if (ibaf2.Formula.SequenceEqual(newFormula))
+                        // 組成式の一致する腕を辞書に登録
+                        warningArms.Add(iarm, allArms_base[ibaf2]);
                 }
             }
 
-            Bcp = bcp1;
-
-            // Bodyからこの腕にアクセスできるようにする。
+            // Bodyからこの腕に再びアクセスできるようにする。
             Body.Arms.Add(this);
+
+            if (secure)
+            {
+                if (warningArms.Count == 0)
+                    // 重複がなければ体始音高を変更
+                    Bcp = pitch;
+            }
+            else
+            {
+                // 重複する腕を体から取り除く
+                foreach (Arm iarm in warningArms.Keys)
+                {
+                    if (iarm.Body is null)
+                        throw new Exception("invalid arm was found.");
+
+                    iarm.Body.Arms.Remove(iarm);
+                }
+
+                // 重複先に、重複元の腕を移動
+                foreach (var item in warningArms)
+                {
+                    item.Value.Arms.AddRange(item.Key.Arms);
+                }
+
+                // 体始音高を変更
+                Bcp = pitch;
+            }
+
+            return warningArms;
+        }
+
+        /// <summary>
+        /// 底音との周波数比を取得するためのメソッド。
+        /// </summary>
+        /// <returns>底音との周波数比</returns>
+        public Fraction CalcCoefFromBase()
+        {
+            BaseAndFormula baf = BaseAndFormula.CalcBaseAndFomulaOfArm(this);
+            List<Fraction> n = [], d = [];
+            for (int dim = 0; dim < baf.Formula.Length; dim++)
+            {
+                int sceding = baf.Formula[dim];
+                if (sceding > 0)
+                {
+                    n.AddRange(Enumerable.Repeat(DimensionInfo.Coefs[dim], sceding));
+                }
+                else if (sceding < 0)
+                {
+                    d.AddRange(Enumerable.Repeat(DimensionInfo.Coefs[dim], -sceding));
+                }
+            }
+
+            return Fraction.CalcBigFraction(n, d);
+        }
+
+        /// <summary>
+        /// 体との接続を切る。もともと切ってある場合はfalseを返す。
+        /// </summary>
+        /// <returns>体との接続を切ったならtrue。すでに切ってあるならfalse</returns>
+        public bool DisconnectBody()
+        {
+            if (Body is null) return false;
+
+            Body.Arms.Remove(this);
+            Body = null;
             return true;
         }
     }

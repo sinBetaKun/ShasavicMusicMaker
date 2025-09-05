@@ -1,0 +1,95 @@
+﻿<UserControl x:Class="ShasavicMusicMaker.Controller.MainWindow.ScoreCanvas"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ShasavicMusicMaker.Controller.MainWindow"
+             mc:Ignorable="d"
+             Loaded="UserControl_Loaded">
+    <UserControl.Resources>
+        <!-- ScrollBarのスタイル -->
+        <Style TargetType="ScrollBar">
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="100"/>
+            </Grid.RowDefinitions>
+            <!-- 見せたい領域（マスクする） -->
+            <Grid Grid.Row="0" Margin="4,4,4,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" BorderBrush="#676681" BorderThickness="4" CornerRadius="8">
+                    <Border Grid.Row="0" BorderBrush="White" Background="#676681" BorderThickness="2" CornerRadius="4"
+                            x:Name="ScoreViewport"
+                            SizeChanged="ScoreViewport_SizeChanged">
+                        <Canvas ClipToBounds="True">
+                            <Rectangle x:Name="ScoreCanvasBackground" Width="100" Height="100" Fill="Transparent"
+                                       MouseLeftButtonDown="ScoreCanvasBackground_MouseLeftButtonDown"
+                                       MouseRightButtonDown="ScoreCanvasBackground_MouseRightButtonDown"
+                                       MouseRightButtonUp="ScoreCanvasBackground_MouseRightButtonUp"
+                                       MouseMove="ScoreCanvasBackground_MouseMove"/>
+                            <StackPanel x:Name="ScorePanel">
+                            </StackPanel>
+                            <Rectangle x:Name="ScaleBackground"
+                                       IsHitTestVisible="False"
+                                       Fill="White"
+                                       Canvas.Left="0" Canvas.Top="0" Width="100" Height="16"/>
+                            <Line x:Name="PlaybackPositionLine_Score" X1="0" Y1="0" X2="0" Y2="0" Stroke="Red" StrokeThickness="1"/>
+                            <Line x:Name="PreviewPositionLine" X1="0" Y1="0" X2="0" Y2="0" Stroke="Red" StrokeThickness="1" Visibility="Hidden"/>
+                        </Canvas>
+                    </Border>
+                </Border>
+                <ScrollBar Grid.Column="1" Margin="2,6,0,6"
+                           x:Name="ScoreScrollBar"
+                           Minimum="0"
+                           SmallChange="10"
+                           LargeChange="40"
+                           ValueChanged="ScoreScrollBar_ValueChanged"/>
+            </Grid>
+
+            <GridSplitter Grid.Row="1" Height="8"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Center"
+                        Background="Transparent"
+                        ResizeBehavior="PreviousAndNext"
+                        ResizeDirection="Rows" />
+
+            <Border Grid.Row="2" Margin="4,0,4,4" BorderBrush="#676681" BorderThickness="4" CornerRadius="8">
+                <Border Grid.Row="0" BorderBrush="White" Background="#676681" BorderThickness="2" CornerRadius="4"
+                        x:Name="GraphViewport"
+                        SizeChanged="GraphViewport_SizeChanged">
+                    <Canvas ClipToBounds="True">
+                        <Rectangle x:Name="GraphCanvasBackground"
+                                   MouseLeftButtonDown="GraphCanvasBackground_MouseLeftButtonDown"
+                                   Canvas.Left="0" Canvas.Top="0" Width="100" Height="100" Fill="Transparent"/>
+                        <StackPanel x:Name="GraphGrid" Orientation="Horizontal" >
+                        </StackPanel>
+                        <Line x:Name="PlaybackPositionLine_Graph" X1="0" Y1="0" X2="0" Y2="0" Stroke="Red" StrokeThickness="1"/>
+                    </Canvas>
+                </Border>
+            </Border>
+        </Grid>
+
+        <!-- スクロールバー -->
+        <ScrollBar x:Name="HorizontalScrollBar"
+                   Orientation="Horizontal"
+                   Minimum="0"
+                   SmallChange="10"
+                   LargeChange="40"
+                   ValueChanged="HorizontalScrollBar_ValueChanged"
+                   Grid.Row="1"
+                   />
+    </Grid>
+</UserControl>

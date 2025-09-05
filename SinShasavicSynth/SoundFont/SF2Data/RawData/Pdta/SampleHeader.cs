@@ -75,6 +75,7 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Pdta
             OriginalKey = reader.ReadByte();
             Correction = reader.ReadSByte();
             SampleLink = reader.ReadUInt16();
+            Type = reader.ReadUInt16();
         }
     }
 }

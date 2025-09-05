@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ShasavicMusicMaker"
+        xmlns:c1="clr-namespace:ShasavicMusicMaker.Controller.MainWindow"
         mc:Ignorable="d"
         Title="ShasavicMusicMaker" Height="600" Width="1000">
     <Window.Resources>
@@ -23,6 +24,10 @@
         <Menu DockPanel.Dock="Top" Margin="1" VerticalAlignment="Top" Style="{StaticResource Menu1}">
             <MenuItem Header="File(_F)">
                 <MenuItem Header="Load SF2" Click="LoadSF2Click"/>
+                <MenuItem Header="Sound A4(La)" Click="TestClick"/>
+                <MenuItem Header="Sound Stop" Click="MenuItem_Click"/>
+                <Separator/>
+                <MenuItem Header="Chordonym Test" Click="MenuItem_Click_1"/>
             </MenuItem>
             <MenuItem Header="Edit(_E)"/>
             <MenuItem Header="View(_V)"/>
@@ -78,9 +83,7 @@
                 </WrapPanel>
                 <Border Style="{StaticResource HorizontalSeparator}"/>
                 <WrapPanel>
-                    <ToggleButton Style="{StaticResource Pen}"/>
-                    <ToggleButton Style="{StaticResource Select}"/>
-                    <ToggleButton Style="{StaticResource Eraser}"/>
+                    <c1:EditModeSwitch/>
                     <Border Style="{StaticResource VerticalSeparator}"/>
                     <TextBlock Text="Scoreline" VerticalAlignment="Center"/>
                     <ComboBox VerticalAlignment="Center" Margin="4,0,0,0" SelectedIndex="1">
@@ -121,6 +124,14 @@
                                 <StackPanel Orientation="Horizontal">
                                     <ContentControl Content="{StaticResource s5d}"/>
                                     <TextBlock Text="5D" Margin="4,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </ComboBoxItem.Content>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <ComboBoxItem.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <ContentControl Content="{StaticResource s6d}"/>
+                                    <TextBlock Text="6D" Margin="4,0,0,0" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </ComboBoxItem.Content>
                         </ComboBoxItem>
@@ -295,24 +306,7 @@
                   Background="Transparent"
                   ResizeBehavior="PreviousAndNext"
                   ResizeDirection="Columns" />
-            <Grid Grid.Column="2" Margin="0,4,4,4">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="100"/>
-                </Grid.RowDefinitions>
-                <Border Grid.Row="0" Style="{StaticResource Box2}">
-                </Border>
-                <GridSplitter Grid.Row="1" Height="6"
-                              HorizontalAlignment="Stretch"
-                              VerticalAlignment="Center"
-                              Background="Transparent"
-                              ResizeBehavior="PreviousAndNext"
-                              ResizeDirection="Columns" />
-                <Border Grid.Row="2" Style="{StaticResource Box2}">
-                    
-                </Border>
-            </Grid>
+            <c1:ScoreCanvas Grid.Column="2" Margin="0,0,4,4"/>
         </Grid>
     </DockPanel>
 </Window>
