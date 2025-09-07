@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Immutable;
 
 namespace SinShasavicSynthSF2.ShasavicObject
 {
@@ -34,7 +29,7 @@ namespace SinShasavicSynthSF2.ShasavicObject
         /// </summary>
         /// <param name="baseFreq">底音の周波数</param>
         /// <param name="formula">組成式</param>
-        public ShasavicTone(float baseFreq, IEnumerable<int> formula)
+        public ShasavicTone(float baseFreq, int[] formula)
         {
             List<int> tmp = [.. formula.Take(DimensionInfo.MaxDimension)];
 
@@ -44,7 +39,7 @@ namespace SinShasavicSynthSF2.ShasavicObject
             BaseFreq = baseFreq;
             Formula = [.. tmp];
 
-            uint n = 1, d = 1;
+            int n = 1, d = 1;
 
             for (int i = 0; i < DimensionInfo.MaxDimension; i++)
             {
@@ -66,7 +61,15 @@ namespace SinShasavicSynthSF2.ShasavicObject
                 }
             }
 
-            ResultFreq = (float)n / d;
+            ResultFreq = BaseFreq * n / d;
+        }
+
+        public bool IsEqualTone(float baseFreq, int[] formula)
+        {
+            if (BaseFreq != baseFreq)
+                return false;
+
+            return Formula.SequenceEqual(formula);
         }
     }
 }

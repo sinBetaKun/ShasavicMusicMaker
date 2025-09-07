@@ -8,13 +8,14 @@ namespace SinShasavicSynthSF2.ShasavicObject
 {
     internal record Fraction
     {
-        public uint N { get; init; }
+        public int N { get; init; }
 
-        public uint D { get; init; }
+        public int D { get; init; }
 
-        public Fraction(uint n, uint d)
+        public Fraction(int n, int d)
         {
-            N = n; D = d;
+            N = n;
+            D = d;
         }
     }
 }

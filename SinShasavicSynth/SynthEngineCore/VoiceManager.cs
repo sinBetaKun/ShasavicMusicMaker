@@ -8,5 +8,11 @@ namespace SinShasavicSynthSF2.SynthEngineCore
 {
     internal class VoiceManager
     {
+        private readonly int SampleRate;
+
+        public VoiceManager(int samplerate = 44100)
+        {
+            SampleRate = samplerate;
+        }
     }
 }

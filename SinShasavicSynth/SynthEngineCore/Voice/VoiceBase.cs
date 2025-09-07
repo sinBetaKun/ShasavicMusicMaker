@@ -16,5 +16,7 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
         public abstract void NoteOff();
 
         public abstract int Read(float[] buffer, int offset, int count);
+
+        public bool IsFinished { get; protected set; } = false;
     }
 }

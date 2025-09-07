@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.VisualBasic;
-using NAudio.Wave;
+﻿using NAudio.Wave;
 
 namespace SinShasavicSynthSF2.SynthEngineCore.Voice
 {
@@ -15,7 +9,7 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
         private int sampleRate;
         private double phase;
         private int sample = 0;
-        public override WaveFormat WaveFormat => WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1);
+        public override WaveFormat WaveFormat => WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 2);
 
         public SineWaveVoice(float frequency, int sampleRate = 44100)
         {
@@ -39,10 +33,11 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
             for (int i = 0; i < count / 2; i++)
             {
                 float envVal = ampEnvelope.Process();
-                buffer[offset + i * 2] = (float)Math.Sin((2 * Math.PI * frequency * sample) / WaveFormat.SampleRate) * envVal;
-                buffer[offset + i * 2 + 1] = (float)Math.Sin((2 * Math.PI * frequency * sample) / WaveFormat.SampleRate) * envVal;
+                float sineValue = (float)MathF.Sin(2 * MathF.PI * frequency * sample / WaveFormat.SampleRate) * envVal;
+                buffer[offset + i * 2] = sineValue;
+                buffer[offset + i * 2 + 1] = sineValue;
                 sample++;
-                sample %= (int)(WaveFormat.SampleRate / (2 * Math.PI * frequency * sample));
+                sample %= (int)(WaveFormat.SampleRate / frequency);
             }
 
             return count;

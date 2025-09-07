@@ -8,6 +8,7 @@ using NAudio.Wave.SampleProviders;
 using SinShasavicSynthSF2.SoundFont;
 using SinShasavicSynthSF2.SoundFont.SF2Data.BuiltData;
 using SinShasavicSynthSF2.SynthEngineCore.Voice;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SinShasavicSynthSF2.SynthEngineCore
 {
@@ -17,9 +18,11 @@ namespace SinShasavicSynthSF2.SynthEngineCore
         private WaveOutEvent? output;
         private BuiltSF2? builtData;
         private List<VoiceBase> stack = [];
+        private ExtraWaveVoice ex_voice;
 
         public Synthesizer()
         {
+            ex_voice = new(440, 1);
         }
 
         public void LoadSoundFont(string path)
@@ -61,6 +64,28 @@ namespace SinShasavicSynthSF2.SynthEngineCore
                 voice.NoteOff();
             }
             stack.Clear();
+        }
+
+        public void Switch_Extra()
+        {
+            mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(44100, 2))
+            {
+                ReadFully = true
+            };
+            output?.Dispose();
+            output = new WaveOutEvent();
+            output.Init(mixer);
+            output.Volume = 0.5f; // 0.0（無音）〜1.0（最大）
+            output.Play();
+        }
+
+        public void Test_Extra()
+        {
+            if (mixer is null) return;
+
+            mixer.AddMixerInput(ex_voice);
+            ex_voice.NoteOn();
+            stack.Add(ex_voice);
         }
     }
 }

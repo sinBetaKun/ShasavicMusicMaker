@@ -25,6 +25,8 @@
             <MenuItem Header="File(_F)">
                 <MenuItem Header="Load SF2" Click="LoadSF2Click"/>
                 <MenuItem Header="Sound A4(La)" Click="TestClick"/>
+                <MenuItem Header="SwitchExtra" Click="SwitchExtraClick"/>
+                <MenuItem Header="Sound A4(La) Extra" Click="TestExtraClick"/>
                 <MenuItem Header="Sound Stop" Click="MenuItem_Click"/>
                 <Separator/>
                 <MenuItem Header="Chordonym Test" Click="MenuItem_Click_1"/>

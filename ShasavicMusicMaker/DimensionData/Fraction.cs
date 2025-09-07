@@ -14,8 +14,20 @@ namespace ShasavicMusicMaker.DimensionData
 
         public Fraction(int n, int d)
         {
-            N = n;
-            D = d;
+            int gcd = GCD(n, d);
+            N = n / gcd;
+            D = d / gcd;
+        }
+
+        private static int GCD(int a, int b)
+        {
+            while (b != 0)
+            {
+                int temp = b;
+                b = a % b;
+                a = temp;
+            }
+            return a;
         }
 
         public float ToFloat() => (float)N / D;
@@ -43,11 +55,6 @@ namespace ShasavicMusicMaker.DimensionData
         public static Fraction operator *(Fraction a, Fraction b)
         {
             return new(a.N * b.N, a.D * b.D);
-        }
-
-        public static Fraction operator *(Fraction a, int b)
-        {
-            return new(a.N * b, a.D);
         }
 
         public static Fraction operator /(Fraction a, Fraction b)

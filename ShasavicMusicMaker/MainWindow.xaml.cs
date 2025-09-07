@@ -61,6 +61,16 @@ namespace ShasavicMusicMaker
             synthesizer.Test();
         }
 
+        private void TestExtraClick(object sender, RoutedEventArgs e)
+        {
+            synthesizer.Test_Extra();
+        }
+
+        private void SwitchExtraClick(object sender, RoutedEventArgs e)
+        {
+            synthesizer.Switch_Extra();
+        }
+
         private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
             synthesizer.Stop();
