@@ -8,18 +8,20 @@
         Title="ChordonymTest" Height="450" Width="800" Background="Black">
     <DockPanel>
         <StackPanel DockPanel.Dock="Left">
-            <Button x:Name="popArm" Content="Pop" Click="Pop_Click"/>
             <Button x:Name="add1d" Content="1d" Click="Add_1d_Click"/>
             <Button x:Name="add2d" Content="2d" Click="Add_2d_Click"/>
             <Button x:Name="add3d" Content="3d" Click="Add_3d_Click"/>
             <Button x:Name="add4d" Content="4d" Click="Add_4d_Click"/>
             <Button x:Name="add5d" Content="5d" Click="Add_5d_Click"/>
             <Button x:Name="add6d" Content="6d" Click="Add_6d_Click"/>
-            <Button x:Name="toggle" Content=" [up] " Click="toggle_Click"/>
+            <Button x:Name="Undo" Content="[Undo]" Click="Undo_Click" IsEnabled="False"/>
+            <Button x:Name="Redo" Content="[Redo]" Click="Redo_Click" IsEnabled="False"/>
             <Button x:Name="playButton" Content="[play] " Click="playButton_Click"/>
+            <Button x:Name="ZoomIn" Content="[ZoomIn]" Click="ZoomIn_Click"/>
+            <Button x:Name="ZoomOut" Content="[ZoomOut]" Click="ZoomOut_Click"/>
         </StackPanel>
         <Canvas>
-            <local:ChordonymViewer x:Name="Viewer" Canvas.Left="100" Canvas.Top="200"/>
+            <local:ChordonymViewer x:Name="Viewer" Canvas.Left="100" Canvas.Top="400"/>
         </Canvas>
     </DockPanel>
 </Window>

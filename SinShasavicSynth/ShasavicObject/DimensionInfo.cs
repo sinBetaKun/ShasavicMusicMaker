@@ -16,16 +16,15 @@ namespace SinShasavicSynthSF2.ShasavicObject
         public static readonly int MaxDimension = 6;
 
         /// <summary>
-        /// 各次元の倍率
+        /// 第N成分に(N+1)次元の倍数が収められている
         /// </summary>
-        public static readonly ImmutableArray<Fraction> Coefs = 
-            [
-            new(2,1),
-            new(3,2),
-            new(5,4),
-            new(7,4),
-            new(11,4),
-            new(13,4),
+        public static ImmutableArray<float> Coefs { get; private set; } = [
+            2f,
+            3 / 2f,
+            5 / 4f,
+            7 / 4f,
+            11 / 4f,
+            13 / 4f
             ];
     }
 }

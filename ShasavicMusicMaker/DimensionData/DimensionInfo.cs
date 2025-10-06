@@ -18,13 +18,13 @@ namespace ShasavicMusicMaker.DimensionData
         /// <summary>
         /// 第N成分に(N+1)次元の倍数が収められている
         /// </summary>
-        public static ImmutableArray<Fraction> Coefs { get; private set; } = [
-            new(2,1),
-            new(3,2),
-            new(5,4),
-            new(7,4),
-            new(11, 4),
-            new(13, 4)
+        public static ImmutableArray<float> Coefs { get; private set; } = [
+            2f,
+            3 / 2f,
+            5 / 4f,
+            7 / 4f,
+            11 / 4f,
+            13 / 4f
             ];
 
         /// <summary>
@@ -63,5 +63,7 @@ namespace ShasavicMusicMaker.DimensionData
             2,
             0,
             ];
+
+        public static int[] MakeFomulaArray() => new int[MaxDimension];
     }
 }

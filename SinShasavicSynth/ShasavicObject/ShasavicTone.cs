@@ -39,25 +39,17 @@ namespace SinShasavicSynthSF2.ShasavicObject
             BaseFreq = baseFreq;
             Formula = [.. tmp];
 
-            int n = 1, d = 1;
+            float n = 1, d = 1;
 
             for (int i = 0; i < DimensionInfo.MaxDimension; i++)
             {
-                if (Formula[i] < 0)
+                if (Formula[i] > 0)
                 {
-                    for (int j = 0; j > Formula[i]; j--)
-                    {
-                        n *= DimensionInfo.Coefs[i].D;
-                        d *= DimensionInfo.Coefs[i].N;
-                    }
+                    n *= MathF.Pow(DimensionInfo.Coefs[i], Formula[i]);
                 }
                 else
                 {
-                    for (int j = 0; j < Formula[i]; j++)
-                    {
-                        n *= DimensionInfo.Coefs[i].N;
-                        d *= DimensionInfo.Coefs[i].D;
-                    }
+                    d *= MathF.Pow(DimensionInfo.Coefs[i], -Formula[i]);
                 }
             }
 

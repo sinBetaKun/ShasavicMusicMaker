@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Runtime.Intrinsics.Arm;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Documents;
@@ -58,6 +59,50 @@ namespace ShasavicMusicMaker.ScoreData.NoteData
                 Arm arm = new(children, this);
                 Arms.Add(arm);
             }
+        }
+
+        /// <summary>
+        /// 自身を複製する。
+        /// 腕の末端まで新たなArmとして複製する。
+        /// 底音以外のArmでこのメソッドは使わないように。
+        /// </summary>
+        /// <returns>複製</returns>
+        public Arm Clone()
+        {
+            Arm clone = new()
+            {
+                Bcp = new(Bcp)
+            };
+
+            foreach (Arm arm in Arms)
+            {
+                clone.Arms.Add(arm.Clone(body: clone));
+            }
+
+            return clone;
+        }
+
+        /// <summary>
+        /// 自身を複製する。
+        /// 腕の末端まで新たなArmとして複製する。
+        /// 底音以外の腕でこのメソッドを使うように。
+        /// </summary>
+        /// <param name="body">親</param>
+        /// <returns>複製</returns>
+        private Arm Clone(Arm body)
+        {
+            Arm clone = new()
+            {
+                Body = body,
+                Bcp = new(Bcp)
+            };
+
+            foreach (Arm arm in Arms)
+            {
+                clone.Arms.Add(arm.Clone(body: clone));
+            }
+
+            return clone;
         }
 
         /// <summary>
@@ -188,24 +233,24 @@ namespace ShasavicMusicMaker.ScoreData.NoteData
         /// 底音との周波数比を取得するためのメソッド。
         /// </summary>
         /// <returns>底音との周波数比</returns>
-        public Fraction CalcCoefFromBase()
+        public float CalcCoefFromBase()
         {
             BaseAndFormula baf = BaseAndFormula.CalcBaseAndFomulaOfArm(this);
-            List<Fraction> n = [], d = [];
+            float n = 1, d = 1;
             for (int dim = 0; dim < baf.Formula.Length; dim++)
             {
                 int sceding = baf.Formula[dim];
                 if (sceding > 0)
                 {
-                    n.AddRange(Enumerable.Repeat(DimensionInfo.Coefs[dim], sceding));
+                    n *= MathF.Pow(DimensionInfo.Coefs[dim], sceding);
                 }
                 else if (sceding < 0)
                 {
-                    d.AddRange(Enumerable.Repeat(DimensionInfo.Coefs[dim], -sceding));
+                    d *= MathF.Pow(DimensionInfo.Coefs[dim], -sceding);
                 }
             }
 
-            return Fraction.CalcBigFraction(n, d);
+            return n / d;
         }
 
         /// <summary>

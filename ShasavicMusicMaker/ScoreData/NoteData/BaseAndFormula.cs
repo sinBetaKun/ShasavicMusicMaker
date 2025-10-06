@@ -37,6 +37,30 @@ namespace ShasavicMusicMaker.ScoreData.NoteData
         }
 
         /// <summary>
+        /// 組成式から、対象とする音高線の
+        /// </summary>
+        /// <returns></returns>
+        public float CalcCoef()
+        {
+            float n = 1;
+            float d = 1;
+
+            for (int i = 0; i < DimensionInfo.MaxDimension; i++)
+            {
+                if (Formula[i] > 0)
+                {
+                    n *= MathF.Pow(DimensionInfo.Coefs[i], Formula[i]);
+                }
+                else
+                {
+                    d *= MathF.Pow(DimensionInfo.Coefs[i], -Formula[i]);
+                }
+            }
+
+            return n / d;
+        }
+
+        /// <summary>
         /// 渡されたArmの底音と組成式を導出する。
         /// </summary>
         /// <param name="arm">底音と組成式を求めたい Arm</param>
@@ -57,6 +81,18 @@ namespace ShasavicMusicMaker.ScoreData.NoteData
             }
 
             return new(_base, formula);
+        }
+
+        /// <summary>
+        /// 渡されたScoreLineの底音と組成式を導出する。
+        /// </summary>
+        /// <param name="scrLine">底音と組成式を求めたい ScoreLine</param>
+        /// <returns>渡された ScoreLine の底音と組成式</returns>
+        public static BaseAndFormula CalcBaseAndFomulaOfScoreLine(ScoreLine scrLine)
+        {
+            BaseAndFormula bas = CalcBaseAndFomulaOfArm(scrLine.Body);
+            bas.Formula[scrLine.Dimension] += scrLine.Sceding;
+            return bas;
         }
 
         /// <summary>
