@@ -16,7 +16,7 @@ namespace SinShasavicSynthSF2.SynthEngineCore
 
         private class Channel
         {
-            private WaveFunction function = WaveFunction.NoiseAttackSine;
+            private WaveFunction function = WaveFunction.Extra;
             private readonly List<ShasavicNote> stack = [];
             private readonly MixingSampleProvider mixer;
             private readonly int sampleRate;

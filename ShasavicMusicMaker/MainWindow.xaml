@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:ShasavicMusicMaker"
         xmlns:c1="clr-namespace:ShasavicMusicMaker.Controller.MainWindow"
         mc:Ignorable="d"
+        WindowState="Maximized"
         Title="ShasavicMusicMaker" Height="600" Width="1000">
     <Window.Resources>
         <ResourceDictionary>
@@ -23,12 +24,6 @@
     <DockPanel Background="#FBFAF8">
         <Menu DockPanel.Dock="Top" Margin="1" VerticalAlignment="Top" Style="{StaticResource Menu1}">
             <MenuItem Header="File(_F)">
-                <MenuItem Header="Load SF2" Click="LoadSF2Click"/>
-                <MenuItem Header="Sound A4(La)" Click="TestClick"/>
-                <MenuItem Header="SwitchExtra" Click="SwitchExtraClick"/>
-                <MenuItem Header="Sound A4(La) Extra" Click="TestExtraClick"/>
-                <MenuItem Header="Sound Stop" Click="MenuItem_Click"/>
-                <Separator/>
                 <MenuItem Header="Chordonym Test" Click="MenuItem_Click_1"/>
             </MenuItem>
             <MenuItem Header="Edit(_E)"/>

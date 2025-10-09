@@ -19,6 +19,8 @@
             <Button x:Name="playButton" Content="[play] " Click="playButton_Click"/>
             <Button x:Name="ZoomIn" Content="[ZoomIn]" Click="ZoomIn_Click"/>
             <Button x:Name="ZoomOut" Content="[ZoomOut]" Click="ZoomOut_Click"/>
+            <Button x:Name="LoadSF2" Content="Load SF2" Click="LoadSF2Click"/>
+            <Button x:Name="UnoadSF2" Content="Unoad SF2" Click="UnoadSF2Click"/>
         </StackPanel>
         <Canvas>
             <local:ChordonymViewer x:Name="Viewer" Canvas.Left="100" Canvas.Top="400"/>

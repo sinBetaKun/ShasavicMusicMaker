@@ -16,12 +16,12 @@ namespace SinShasavicSynthSF2.ShasavicObject
         private readonly bool[] voicesFinished;
         public bool IsFinished { get; private set; }
 
-        public ShasavicNote(MixingSampleProvider mixer, ShasavicTone tone, VoiceBase[] voices)
+        public ShasavicNote(MixingSampleProvider mixer, ShasavicTone tone, IEnumerable<VoiceBase> voices)
         {
             this.mixer = mixer;
             this.tone = tone;
-            this.voices = voices;
-            voicesFinished = new bool[voices.Length];
+            this.voices = [.. voices];
+            voicesFinished = new bool[this.voices.Length];
 
             foreach (VoiceBase voice in voices)
                 mixer.AddMixerInput(voice);

@@ -1,12 +1,13 @@
-﻿using System;
+﻿using NAudio.Wave.SampleProviders;
+using SinShasavicSynthSF2.SoundFont.SF2Data.RawData;
+using SinShasavicSynthSF2.SynthEngineCore;
+using SinShasavicSynthSF2.SynthEngineCore.Voice;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SinShasavicSynthSF2.SoundFont.SF2Data.RawData;
-using SinShasavicSynthSF2.SynthEngineCore;
-using SinShasavicSynthSF2.SynthEngineCore.Voice;
 
 namespace SinShasavicSynthSF2.SoundFont.SF2Data.BuiltData
 {
@@ -20,6 +21,7 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.BuiltData
 
         public BuiltSF2(SF2RawData raw)
         {
+            WdlResamplingSampleProvider a;
             presets = new Preset[raw.Pdta.Phdr.Headers.Length];
 
             for (ushort i = 0; i < presets.Length; i++)
@@ -37,27 +39,15 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.BuiltData
             SampleRate = (int)raw.Pdta.Shdr.Headers[0].SampleRate;
         }
 
-        public List<VoiceBase> GetVoices(ushort presetNo, ushort bank, byte key, byte vel)
+        public List<VoiceBase> GetVoices(ushort presetNo, ushort bank, byte key, byte vel, float pitch = 1.0f)
         {
             List<VoiceBase> voices = [];
-
             List<InstrumentRegion> regions = GetInstrumentRegions(presetNo, bank, key, vel);
 
             foreach (InstrumentRegion region in regions)
             {
-                SampleHeader_b[] headers = region.SmplHdrs;
-
-                switch (headers.Length)
-                {
-                    case 1:
-                        MonoVoice mono = new(this, region);
-                        voices.Add(mono);
-                        break;
-                    case 2:
-                        StereoVoice stereo = new(this, region);
-                        voices.Add(stereo);
-                        break;
-                }
+                StereoVoice voice = new(this, region, pitch);
+                voices.Add(voice);
             }
 
             return voices;
@@ -84,7 +74,7 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.BuiltData
 
                     foreach (InstrumentZone izone in izones)
                     {
-                        regions.Add(new(izone, inst.GrobalZone, pzone, preset.GrobalZone));
+                        regions.Add(new(izone, inst.GrobalZone, pzone, preset.GrobalZone, key, vel));
                     }
                 }
             }

@@ -6,6 +6,37 @@
         <Setter Property="CornerRadius" Value="4"/>
         <Setter Property="Background" Value="#F5EFEC"/>
     </Style>
+    <Style x:Key="ContextMenu1" TargetType="Border">
+        <Setter Property="BorderBrush" Value="#BB9988"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="Background" Value="#D0F5EFEC"/>
+        <Setter Property="Padding" Value="8"/>
+    </Style>
+    <Style x:Key="ContextMenuItem1" TargetType="Border">
+        <Setter Property="BorderBrush" Value="#BB9988"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="Background" Value="#F5EFEC"/>
+        <Setter Property="Padding" Value="4,2"/>
+        <Setter Property="Margin" Value="1"/>
+    </Style>
+    <Style x:Key="SelectedContextMenuItem1" TargetType="Border">
+        <Setter Property="BorderBrush" Value="#706055"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="Background" Value="#F5EFEC"/>
+        <Setter Property="Padding" Value="3,1"/>
+        <Setter Property="Margin" Value="1"/>
+    </Style>
+    <Style x:Key="InvalidContextMenuItem1" TargetType="Border">
+        <Setter Property="BorderBrush" Value="#676681"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="Background" Value="#F5EFEC"/>
+        <Setter Property="Padding" Value="4,2"/>
+        <Setter Property="Margin" Value="1"/>
+    </Style>
     <Style x:Key="VerticalSeparator" TargetType="Border">
         <Setter Property="Background" Value="#B5AFA5"/>
         <Setter Property="Margin" Value="8,0,8,0"/>
@@ -39,6 +70,13 @@
         <Setter Property="BorderBrush" Value="#676681"/>
         <Setter Property="BorderThickness" Value="4"/>
         <Setter Property="CornerRadius" Value="4"/>
+    </Style>
+    <Style x:Key="Box5" TargetType="Border">
+        <Setter Property="BorderBrush" Value="#BB9988"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="Background" Value="#F5EFEC"/>
+        <Setter Property="Padding" Value="4"/>
     </Style>
     <Style x:Key="Text1" TargetType="TextBlock">
         <Setter Property="Foreground" Value="#706055"/>

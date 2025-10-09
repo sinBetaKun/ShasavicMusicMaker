@@ -13,7 +13,8 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
         private readonly float frequency;
         private readonly int sampleRate;
         private readonly float vel;
-        private int phase = 0;
+        private double phase = 0;
+        private readonly double phaseIncrement;
         private int noisePhase;
         private readonly float noiseLength = 0.03f;
         private readonly float cutoffHz = 100;
@@ -56,6 +57,8 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
 
             noisePhase--;
             #endregion
+
+            phaseIncrement = 2.0 * Math.PI * frequency / WaveFormat.SampleRate;
         }
 
         public override void NoteOn()
@@ -85,7 +88,7 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
                     return i * 2;
                 }
 
-                float sinValue = (float)Math.Sin(2 * Math.PI * frequency * phase / WaveFormat.SampleRate) * envVal;
+                float sinValue = (float)Math.Sin(phase) * envVal;
                 float extraValue = sinValue * waveNoseRate;
 
                 if (noisePhase >= 0)
@@ -99,8 +102,9 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
                     buffer[offset + i * 2] = buffer[offset + i * 2 + 1] = extraValue;
                 }
 
-                phase++;
-                phase %= (int)(WaveFormat.SampleRate / frequency);
+                phase += phaseIncrement;
+                if (phase >= 2.0 * Math.PI)
+                    phase -= 2.0 * Math.PI;
             }
 
             return count;
