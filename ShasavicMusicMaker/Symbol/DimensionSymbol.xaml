@@ -34,7 +34,10 @@
         <Line Canvas.Left="3" Canvas.Top="3" X1="10" Y1="5" X2="14" Y2="1" StrokeThickness="2" Stroke="#B5B500"/>
         <Path Canvas.Left="1" Data="M 1,6 L 6,1 L 14,1" StrokeThickness="2" Stroke="#B5B500"/>
     </Canvas>
-
+    
+    <Canvas x:Key="m0d" x:Shared="false" Width="32" Height="32">
+        <Ellipse Canvas.Top="12" Canvas.Left="12" Width="8" Height="8" StrokeThickness="2" Stroke="#AAAAAA"/>
+    </Canvas>
     <Canvas x:Key="m1d" x:Shared="false" Height="23" Width="16">
         <Line X1="3" Y1="20" X2="13" Y2="3" StrokeThickness="2" Stroke="#AAAAAA"/>
         <Ellipse Canvas.Top="17" Fill="#AAAAAA" Width="6" Height="6"/>
@@ -60,5 +63,50 @@
         <Path Canvas.Left="5" Canvas.Top="5" Data="M 9,1 L 1,9 L 1,27 L 19,27 L27,19 L27,1 Z" StrokeThickness="2" Stroke="#FFC247"/>
         <Path Canvas.Left="5" Canvas.Top="5" Data="M 1,9 L 19,9 L 19,27" StrokeThickness="2" Stroke="#FFC247"/>
         <Line Canvas.Left="5" Canvas.Top="5" X1="19" Y1="9" X2="27" Y2="1" StrokeThickness="2" Stroke="#FFC247"/>
+    </Canvas>
+    <Canvas x:Key="m6d" x:Shared="false" Width="38" Height="38">
+        <Path Data="M 27,36 L 37,26 L 37,9" StrokeThickness="2" Stroke="#B5B500"/>
+        <Path Data="M 1,19 L 1,37 L 19,37" StrokeThickness="2" Stroke="#B5B500"/>
+        <Path Canvas.Left="2" Data="M 1,10 L 10,1 L 28,1" StrokeThickness="2" Stroke="#B5B500"/>
+        <Path Canvas.Left="5" Canvas.Top="5" Data="M 9,1 L 1,9 L 1,27 L 19,27 L27,19 L27,1 Z" StrokeThickness="2" Stroke="#B5B500"/>
+        <Path Canvas.Left="5" Canvas.Top="5" Data="M 1,9 L 19,9 L 19,27" StrokeThickness="2" Stroke="#B5B500"/>
+        <Line Canvas.Left="5" Canvas.Top="5" X1="19" Y1="9" X2="27" Y2="1" StrokeThickness="2" Stroke="#B5B500"/>
+    </Canvas>
+
+    <Canvas x:Key="m1d_up" x:Shared="false" Width="14" Height="32">
+        <Path Data="M1,10 L7,4 L13,10 M7,4 V20" StrokeThickness="2" Stroke="#AAAAAA"/>
+    </Canvas>
+    <Canvas x:Key="m1d_down" x:Shared="false"  Width="14" Height="32">
+        <Path Data="M1,22 L7,28 L13,22 M7,28 V12" StrokeThickness="2" Stroke="#AAAAAA"/>
+    </Canvas>
+    <Canvas x:Key="m2d_up" x:Shared="false" Width="14" Height="32">
+        <Path Data="M1,10 L7,4 L13,10 M7,4 V20" StrokeThickness="2" Stroke="#F27992"/>
+    </Canvas>
+    <Canvas x:Key="m2d_down" x:Shared="false"  Width="14" Height="32">
+        <Path Data="M1,22 L7,28 L13,22 M7,28 V12" StrokeThickness="2" Stroke="#F27992"/>
+    </Canvas>
+    <Canvas x:Key="m3d_up" x:Shared="false" Width="14" Height="32">
+        <Path Data="M1,10 L7,4 L13,10 M7,4 V20" StrokeThickness="2" Stroke="#6CD985"/>
+    </Canvas>
+    <Canvas x:Key="m3d_down" x:Shared="false"  Width="14" Height="32">
+        <Path Data="M1,22 L7,28 L13,22 M7,28 V12" StrokeThickness="2" Stroke="#6CD985"/>
+    </Canvas>
+    <Canvas x:Key="m4d_up" x:Shared="false" Width="14" Height="32">
+        <Path Data="M1,10 L7,4 L13,10 M7,4 V20" StrokeThickness="2" Stroke="#B598EE"/>
+    </Canvas>
+    <Canvas x:Key="m4d_down" x:Shared="false"  Width="14" Height="32">
+        <Path Data="M1,22 L7,28 L13,22 M7,28 V12" StrokeThickness="2" Stroke="#B598EE"/>
+    </Canvas>
+    <Canvas x:Key="m5d_up" x:Shared="false" Width="14" Height="32">
+        <Path Data="M1,10 L7,4 L13,10 M7,4 V20" StrokeThickness="2" Stroke="#FFC247"/>
+    </Canvas>
+    <Canvas x:Key="m5d_down" x:Shared="false"  Width="14" Height="32">
+        <Path Data="M1,22 L7,28 L13,22 M7,28 V12" StrokeThickness="2" Stroke="#FFC247"/>
+    </Canvas>
+    <Canvas x:Key="m6d_up" x:Shared="false" Width="14" Height="32">
+        <Path Data="M1,10 L7,4 L13,10 M7,4 V20" StrokeThickness="2" Stroke="#B5B500"/>
+    </Canvas>
+    <Canvas x:Key="m6d_down" x:Shared="false"  Width="14" Height="32">
+        <Path Data="M1,22 L7,28 L13,22 M7,28 V12" StrokeThickness="2" Stroke="#B5B500"/>
     </Canvas>
 </ResourceDictionary>

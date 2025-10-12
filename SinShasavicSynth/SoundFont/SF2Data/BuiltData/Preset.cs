@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SinShasavicSynthSF2.SoundFont.SF2Data.RawData;
+﻿using SinShasavicSynthSF2.SoundFont.SF2Data.RawData;
 using SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Pdta;
 
 namespace SinShasavicSynthSF2.SoundFont.SF2Data.BuiltData

@@ -6,7 +6,7 @@ namespace SinShasavicSynthSF2.ShasavicObject
     /// 鳴らすノーツの音階（音高線）を指定するためのクラス。
     /// 初期化時に、音高線の周波数が計算される。
     /// </summary>
-    public record ShasavicTone
+    internal record ShasavicTone
     {
         /// <summary>
         /// 底音の周波数
@@ -41,7 +41,9 @@ namespace SinShasavicSynthSF2.ShasavicObject
 
             float n = 1, d = 1;
 
-            for (int i = 0; i < DimensionInfo.MaxDimension; i++)
+            int maxDim = (DimensionInfo.MaxDimension < formula.Length) ? DimensionInfo.MaxDimension : formula.Length;
+
+            for (int i = 0; i < maxDim; i++)
             {
                 if (Formula[i] > 0)
                 {

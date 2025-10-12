@@ -2,7 +2,7 @@
 
 namespace SinShasavicSynthSF2.SynthEngineCore.Voice
 {
-    internal class SineWaveVoice : VoiceBase
+    internal class SineWaveVoice : NoteVoiceBase
     {
         EnvelopeGenerator ampEnvelope;
         private readonly float frequency;

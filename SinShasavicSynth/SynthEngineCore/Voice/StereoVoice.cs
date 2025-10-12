@@ -1,9 +1,10 @@
 ﻿using NAudio.Wave;
 using SinShasavicSynthSF2.SoundFont.SF2Data.BuiltData;
+using System.Numerics;
 
 namespace SinShasavicSynthSF2.SynthEngineCore.Voice
 {
-    internal class StereoVoice : VoiceBase
+    internal class StereoVoice : NoteVoiceBase
     {
         private readonly EnvelopeGenerator ampEnvelope;
 
@@ -18,42 +19,90 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
         private readonly int loopStart_R;
         private readonly int loopEnd_L;
         private readonly int loopEnd_R;
-        private readonly float constPitchRatio = 1.0f;
+        private readonly float constPitchRatio;
 
         public override WaveFormat WaveFormat { get; }
-        public bool IsFinished { get; private set; } = false;
+
         private bool isFinished_L = false;
         private bool isFinished_R = false;
 
-        public StereoVoice(BuiltSF2 builtData, InstrumentRegion region)
+        public StereoVoice(BuiltSF2 builtData, InstrumentRegion region, float pitch = 1.0f, float vol = 1.0f)
         {
-            SampleHeader_b header_L = region.SmplHdrs[0];
-            SampleHeader_b header_R = region.SmplHdrs[1];
-
+            constPitchRatio = DefaultPitchCalculater.Calc(region) * pitch;
             ampEnvelope = new(region);
 
-            uint start_L = header_L.Start;
-            uint end_L = header_L.End;
-            uint length_L = end_L - start_L;
-            sampleBuffer_L = new float[length_L];
-            Array.Copy(builtData.Samples, start_L, sampleBuffer_L, 0, length_L);
+            switch (region.SmplHdrs.Length)
+            {
+                case 1:
+                    SampleHeader_b header = region.SmplHdrs[0];
 
-            uint start_R = header_R.Start;
-            uint end_R = header_R.End;
-            uint length_R = end_R - start_R;
-            sampleBuffer_R = new float[length_R];
-            Array.Copy(builtData.Samples, start_R, sampleBuffer_R, 0, length_R);
+                    uint start = header.Start;
+                    uint end = header.End;
+                    uint length = end - start;
+                    sampleBuffer_L = sampleBuffer_R = new float[length];
+                    Array.Copy(builtData.Samples, start, sampleBuffer_L, 0, length);
 
-            sampleRate = (int)header_L.SampleRate;
-            WaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 2);
+                    for (int i = 0; i < length; i++)
+                    {
+                        sampleBuffer_L[i] *= vol;
+                        if (sampleBuffer_L[i] < -1) sampleBuffer_L[i] = -1;
+                        else if (sampleBuffer_L[i] > 1) sampleBuffer_L[i] = 1;
+                    }
 
-            loopStart_L = (int)(header_L.Loopstart - start_L);
-            loopEnd_L = (int)(header_L.Loopend - start_L);
-            isLooping_L = loopStart_L < loopEnd_L;
+                    sampleRate = (int)header.SampleRate;
+                    WaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 2);
 
-            loopStart_R = (int)(header_R.Loopstart - start_R);
-            loopEnd_R = (int)(header_R.Loopend - start_R);
-            isLooping_R = loopStart_R < loopEnd_R;
+                    loopStart_L = loopStart_R = (int)(header.Loopstart - start);
+                    loopEnd_L = loopEnd_R = (int)(header.Loopend - start);
+                    isLooping_L = isLooping_R = header.IsLoop;
+
+                    break;
+
+                case 2:
+                    SampleHeader_b header_L = region.SmplHdrs[0];
+                    SampleHeader_b header_R = region.SmplHdrs[1];
+
+                    uint start_L = header_L.Start;
+                    uint end_L = header_L.End;
+                    uint length_L = end_L - start_L;
+                    sampleBuffer_L = new float[length_L];
+                    Array.Copy(builtData.Samples, start_L, sampleBuffer_L, 0, length_L);
+
+                    for (int i = 0; i < length_L; i++)
+                    {
+                        sampleBuffer_L[i] *= vol;
+                        if (sampleBuffer_L[i] < -1) sampleBuffer_L[i] = -1;
+                        else if (sampleBuffer_L[i] > 1) sampleBuffer_L[i] = 1;
+                    }
+
+                    uint start_R = header_R.Start;
+                    uint end_R = header_R.End;
+                    uint length_R = end_R - start_R;
+                    sampleBuffer_R = new float[length_R];
+                    Array.Copy(builtData.Samples, start_R, sampleBuffer_R, 0, length_R);
+
+                    for (int i = 0; i < length_R; i++)
+                    {
+                        sampleBuffer_R[i] *= vol;
+                        if (sampleBuffer_R[i] < -1) sampleBuffer_R[i] = -1;
+                        else if (sampleBuffer_R[i] > 1) sampleBuffer_R[i] = 1;
+                    }
+
+                    sampleRate = (int)header_L.SampleRate;
+                    WaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 2);
+
+                    loopStart_L = (int)(header_L.Loopstart - start_L);
+                    loopEnd_L = (int)(header_L.Loopend - start_L);
+                    isLooping_L = header_L.IsLoop;
+
+                    loopStart_R = (int)(header_R.Loopstart - start_R);
+                    loopEnd_R = (int)(header_R.Loopend - start_R);
+                    isLooping_R = header_R.IsLoop;
+                    break;
+
+                default:
+                    throw new Exception("Unsupported format: count of channels is " + region.SmplHdrs.Length);
+            }
         }
 
         public override void NoteOn()
@@ -71,13 +120,10 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
             if (IsFinished) return 0;
             
             int samplesWritten = 0;
-            float envelopeValue;
-            int index_L, index_R;
-            bool jumped_L, jumped_R;
 
             while (samplesWritten * 2 < count)
             {
-                jumped_L = false;
+                bool jumped_L = false;
 
                 if (isLooping_L)
                 {
@@ -95,7 +141,7 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
                     }
                 }
 
-                jumped_R = false;
+                bool jumped_R = false;
 
                 if (isLooping_R)
                 {
@@ -119,7 +165,7 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
                     break;
                 }
 
-                envelopeValue = ampEnvelope.Process();
+                float envelopeValue = ampEnvelope.Process(constPitchRatio);
 
                 if (isFinished_L)
                 {
@@ -127,15 +173,17 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
                 }
                 else
                 {
-                    index_L = (int)position_L;
-
                     if (jumped_L)
                     {
                         buffer[offset + samplesWritten * 2] = 0;
                     }
                     else
                     {
-                        buffer[offset + samplesWritten * 2] = envelopeValue * sampleBuffer_L[index_L];
+                        int i1 = (int)position_L;
+                        int i2 = (i1 + 1) % sampleBuffer_L.Length;
+                        float frac = position_L - i1;
+                        buffer[offset + samplesWritten * 2] = 
+                            envelopeValue * (sampleBuffer_L[i1] * (1 - frac) + sampleBuffer_L[i2] * frac);
                     }
 
                     position_L += constPitchRatio;
@@ -147,15 +195,17 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
                 }
                 else
                 {
-                    index_R = (int)position_R;
-
                     if (jumped_R)
                     {
                         buffer[offset + samplesWritten * 2 + 1] = 0;
                     }
                     else
                     {
-                        buffer[offset + samplesWritten * 2 + 1] = envelopeValue * sampleBuffer_R[index_R];
+                        int i1 = (int)position_R;
+                        int i2 = (i1 + 1) % sampleBuffer_R.Length;
+                        float frac = position_R - i1;
+                        buffer[offset + samplesWritten * 2 + 1] =
+                            envelopeValue * (sampleBuffer_R[i1] * (1 - frac) + sampleBuffer_R[i2] * frac);
                     }
 
                     position_R += constPitchRatio;

@@ -1,7 +1,10 @@
-﻿using System.Windows;
+﻿using NAudio.Wave;
 using ShasavicMusicMaker.Command;
 using ShasavicMusicMaker.ScoreData.NoteData;
+using SinShasavicSynthSF2.ShasavicObject.Event;
 using SinShasavicSynthSF2.SynthEngineCore;
+using System.Windows;
+using System.Windows.Forms;
 
 namespace ShasavicMusicMaker.Controller.Score
 {
@@ -10,17 +13,22 @@ namespace ShasavicMusicMaker.Controller.Score
     /// </summary>
     public partial class ChordonymTest : Window
     {
-        private readonly FunctionSynth synth;
+        private readonly FunctionSynth func_synth;
+        private readonly SF2VoiceManager _sf_voiceManager;
         private readonly Chordonym chordonym;
         private readonly CommandStucker commandStucker;
+        private bool isFunc = true;
 
         public ChordonymTest()
         {
             InitializeComponent();
-            synth = new();
-            chordonym = new(512);
+            func_synth = new();
+            _sf_voiceManager = new();
+            chordonym = new(440);
             commandStucker = new();
             commandStucker.CommandSubscribed += UpdateUndoRedoButton;
+            Viewer.SF2VoiceManager = _sf_voiceManager;
+            Viewer.FuncSynth = func_synth;
             Viewer.SetCommandStucker(commandStucker);
             Viewer.DataContext = chordonym;
             Viewer.SetSelectorVerticalEdge(1000, -1000);
@@ -72,8 +80,13 @@ namespace ShasavicMusicMaker.Controller.Score
                 add4d.IsEnabled = true;
                 add5d.IsEnabled = true;
                 add6d.IsEnabled = true;
+                LoadSF2.IsEnabled = true;
+                UnoadSF2.IsEnabled = true;
                 UpdateUndoRedoButton(sender, e);
-                synth.AllNoteOff();
+                if (isFunc)
+                    func_synth.AllNoteOff();
+                else
+                    _sf_voiceManager.AllNoteOff();
             }
             else
             {
@@ -87,20 +100,45 @@ namespace ShasavicMusicMaker.Controller.Score
                 add6d.IsEnabled = false;
                 Redo.IsEnabled = false;
                 Undo.IsEnabled = false;
+                LoadSF2.IsEnabled = false;
+                UnoadSF2.IsEnabled = false;
 
                 List<Arm> arms1 = [chordonym.Arm];
                 List<Arm> arms2 = [];
+                List<NoteOnArg> args = [];
 
                 while(arms1.Count > 0)
                 {
-                    foreach (Arm arm in arms1)
+                    if (isFunc)
                     {
-                        synth.NoteOn(0, chordonym.OrgnBaseFreq, BaseAndFormula.CalcBaseAndFomulaOfArm(arm).Formula, 127);
-                        arms2.AddRange(arm.Arms);
+                        foreach (Arm arm in arms1)
+                        {
+                            if (!arm.Muted)
+                            {
+                                func_synth.NoteOn(0, chordonym.OrgnBaseFreq, BaseAndFormula.CalcBaseAndFomulaOfArm(arm).Formula, 100);
+                                arms2.AddRange(arm.Arms);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        foreach (Arm arm in arms1)
+                        {
+                            if (!arm.Muted)
+                            {
+                                args.Add(new(0, chordonym.OrgnBaseFreq, BaseAndFormula.CalcBaseAndFomulaOfArm(arm).Formula, 100));
+                                arms2.AddRange(arm.Arms);
+                            }
+                        }
                     }
 
                     arms1 = arms2;
                     arms2 = [];
+                }
+
+                if (!isFunc)
+                {
+                    _sf_voiceManager.NoteOn(0, args);
                 }
             }
         }
@@ -131,6 +169,43 @@ namespace ShasavicMusicMaker.Controller.Score
         private void ZoomOut_Click(object sender, RoutedEventArgs e)
         {
             Viewer.ChangeOctaveHeight(Viewer.OctaveHeight / 1.5f);
+        }
+
+        private void LoadSF2Click(object sender, RoutedEventArgs e)
+        {
+            func_synth.AllNoteOff();
+            OpenFileDialog od = new() { Filter = "Soundfont2(*.sf2)|*.sf2" };
+            DialogResult result = od.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                try
+                {
+                    _sf_voiceManager.LoadSF2List([od.FileName]);
+                    System.Windows.Forms.MessageBox.Show(
+                        "OK",
+                        "OK",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information
+                        );
+
+                    isFunc = false;
+                }
+                catch (Exception ex)
+                {
+                    System.Windows.Forms.MessageBox.Show(
+                        ex.Message + "\n---\n" + ex.StackTrace,
+                        "Failure to load sf2",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Stop
+                        );
+                }
+            }
+        }
+
+        private void UnoadSF2Click(object sender, RoutedEventArgs e)
+        {
+            _sf_voiceManager.LoadSF2List([]);
+            isFunc = true;
         }
     }
 }

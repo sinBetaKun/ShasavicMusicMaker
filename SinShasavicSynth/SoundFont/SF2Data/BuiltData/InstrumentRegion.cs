@@ -10,12 +10,15 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.BuiltData
     {
         public Dictionary<GeneratorType, ushort> Gens { get; init; }
         public SampleHeader_b[] SmplHdrs { get; init; }
+        public byte Key { get; init; }
+        public byte Vel { get; init; }
 
-        public InstrumentRegion(InstrumentZone iLZone, InstrumentZone? iGZone, PresetZone pLZone, PresetZone? pGZone)
+        public InstrumentRegion(InstrumentZone iLZone, InstrumentZone? iGZone, PresetZone pLZone, PresetZone? pGZone, byte key, byte vel)
         {
             SmplHdrs = iLZone.SmplHdrs;
-
             Gens = new(iLZone.Gens);
+            Key = key;
+            Vel = vel;
 
             if (iGZone is not null)
             {

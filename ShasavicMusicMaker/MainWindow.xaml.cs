@@ -1,17 +1,15 @@
-﻿using System.Text;
+﻿using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
+using ShasavicMusicMaker.Controller.Score;
+using SinShasavicSynthSF2.ShasavicObject.Event;
+using SinShasavicSynthSF2.SoundFont;
+using SinShasavicSynthSF2.SoundFont.SF2Data.BuiltData;
+using SinShasavicSynthSF2.SynthEngineCore;
+using SinShasavicSynthSF2.SynthEngineCore.Voice;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using ShasavicMusicMaker.Controller.Score;
-using SinShasavicSynthSF2.SoundFont;
-using SinShasavicSynthSF2.SynthEngineCore;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ShasavicMusicMaker
 {
@@ -20,60 +18,9 @@ namespace ShasavicMusicMaker
     /// </summary>
     public partial class MainWindow : Window
     {
-        readonly Synthesizer synthesizer;
-
         public MainWindow()
         {
             InitializeComponent();
-            synthesizer = new Synthesizer();
-        }
-
-        private void LoadSF2Click(object sender, RoutedEventArgs e)
-        {
-            OpenFileDialog od = new() { Filter = "Soundfont2(*.sf2)|*.sf2" };
-            DialogResult result = od.ShowDialog();
-            if (result == System.Windows.Forms.DialogResult.OK)
-            {
-                try
-                {
-                    synthesizer.LoadSoundFont(od.FileName);
-                    System.Windows.Forms.MessageBox.Show(
-                        "OK",
-                        "OK",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information
-                        );
-                }
-                catch (Exception ex)
-                {
-                    System.Windows.Forms.MessageBox.Show(
-                        ex.Message + "\n---\n" + ex.StackTrace,
-                        "Failure to load sf2",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Stop
-                        );
-                }
-            }
-        }
-
-        private void TestClick(object sender, RoutedEventArgs e)
-        {
-            synthesizer.Test();
-        }
-
-        private void TestExtraClick(object sender, RoutedEventArgs e)
-        {
-            synthesizer.Test_Extra();
-        }
-
-        private void SwitchExtraClick(object sender, RoutedEventArgs e)
-        {
-            synthesizer.Switch_Extra();
-        }
-
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            synthesizer.Stop();
         }
 
         ChordonymTest? chordonymTest;

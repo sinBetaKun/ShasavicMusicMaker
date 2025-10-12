@@ -46,6 +46,8 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.BuiltData
         /// </summary>
         public sbyte Correction { get; init; }
 
+        public bool IsLoop { get; init; }
+
         public SampleHeader_b(SampleHeader header)
         {
             Start = header.Start;
@@ -55,6 +57,19 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.BuiltData
             SampleRate = header.SampleRate;
             OriginalKey = header.OriginalKey;
             Correction = header.Correction;
+
+            if (Loopend <= Loopstart)
+            {
+                IsLoop = false;
+            }
+            else if ((header.Type & 0x8000) > 0 || Start < Loopstart)
+            {
+                IsLoop = true;
+            }
+            else
+            {
+                IsLoop = false;
+            }
         }
     }
 }

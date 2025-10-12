@@ -2,6 +2,7 @@
 using ShasavicMusicMaker.Command.Event.ChordonymChange;
 using ShasavicMusicMaker.DimensionData;
 using ShasavicMusicMaker.ScoreData.NoteData;
+using SinShasavicSynthSF2.ShasavicObject.Event;
 using SinShasavicSynthSF2.SynthEngineCore;
 using System.Reflection;
 using System.Windows;
@@ -17,10 +18,12 @@ namespace ShasavicMusicMaker.Controller.Score
     /// </summary>
     public partial class ChordonymViewer : UserControl
     {
-        private readonly FunctionSynth synth;
-        private readonly List<(int, Arm)> pitchLinePoses;
-        private readonly List<(int, ScoreLine)> scoreLinePoses;
+        private readonly List<(double, Arm)> pitchLinePoses;
+        private readonly List<(double, ScoreLine)> scoreLinePoses;
         private CommandStucker? commandStucker;
+
+        public FunctionSynth? FuncSynth { get; set; }
+        public SF2VoiceManager? SF2VoiceManager { get; set; }
 
         /// <summary>
         /// コンストラクタの後にSetCommandStuckerも一緒に実行すること。
@@ -28,10 +31,13 @@ namespace ShasavicMusicMaker.Controller.Score
         public ChordonymViewer()
         {
             InitializeComponent();
-            synth = new();
             pitchLinePoses = [];
             scoreLinePoses = [];
             UpdateScoreLines();
+            ContextMenu.PitchLineMuted += MuteArm;
+            ContextMenu.PitchLineUnmuted += UnmuteArm;
+            ContextMenu.PitchLineRemoved += RemoveArm;
+            ContextMenu.ActionFinished += CloseContextMenuPopup;
         }
 
         internal void SetCommandStucker(CommandStucker commandStucker)
@@ -101,6 +107,7 @@ namespace ShasavicMusicMaker.Controller.Score
             List<(Arm, BaseAndFormula)>[] dimLineVPositions = chordonym.CalcDimensionLineVPositions();
             List<List<(Arm, BaseAndFormula)>>[] dimLineHVPositions = new List<List<(Arm, BaseAndFormula)>>[DimensionInfo.MaxDimension];
 
+            #region Sort Arm
             for (int dim = 0; dim < DimensionInfo.MaxDimension; dim++)
             {
                 if (DimensionInfo.avoidDupl[dim])
@@ -160,10 +167,11 @@ namespace ShasavicMusicMaker.Controller.Score
                     dimLineHVPositions[dim] = [dimLineVPositions[dim]];
                 }
             }
+            #endregion
 
             ChordonymCanvas.Children.Clear();
-            const int lineThickness = 8;
-            const int distance = 12;
+            int lineThickness = (int)Math.Ceiling(0.08 * OctaveHeight);
+            int distance = (int)Math.Ceiling(0.12 * OctaveHeight);
             int hOffset = distance;
             Dictionary<int, List<Arm>> armHEdgeDict = [];
 
@@ -424,7 +432,7 @@ namespace ShasavicMusicMaker.Controller.Score
 
                 List<Arm> arms1 = [.. chordonym.Arm.Arms];
                 List<Arm> arms2 = [];
-                Dictionary<Arm, int> armVPosDict = [];
+                Dictionary<Arm, double> armVPosDict = [];
 
                 foreach (List<(Arm, BaseAndFormula)> list in dimLineVPositions)
                 {
@@ -435,7 +443,7 @@ namespace ShasavicMusicMaker.Controller.Score
                         if (arm.Bcp.Scending)
                             coef2 *= DimensionInfo.Coefs[arm.Bcp.Dimension - 1];
 
-                        armVPosDict.Add(arm, (int)(MathF.Log2(coef2) * OctaveHeight));
+                        armVPosDict.Add(arm, MathF.Log2(coef2) * OctaveHeight);
                     }
                 }
 
@@ -467,7 +475,7 @@ namespace ShasavicMusicMaker.Controller.Score
                         if (rightEdge > chordonymRightEgde)
                             chordonymRightEgde = rightEdge;
 
-                        int vPos = -armVPosDict[arm1];
+                        int vPos = -(int)armVPosDict[arm1];
 
                         Line line = new()
                         {
@@ -476,12 +484,12 @@ namespace ShasavicMusicMaker.Controller.Score
                             Y1 = vPos,
                             Y2 = vPos,
                             Stroke = new SolidColorBrush(Colors.White),
-                            StrokeThickness = 4,
+                            StrokeThickness = (int)Math.Ceiling(0.04 * OctaveHeight),
                         };
                         ChordonymCanvas.Children.Add(line);
 
                         if (!isProv)
-                            pitchLinePoses.Add((vPos, arm1));
+                            pitchLinePoses.Add((-armVPosDict[arm1], arm1));
                     }
 
                     arms1 = arms2;
@@ -489,13 +497,16 @@ namespace ShasavicMusicMaker.Controller.Score
                 }
 
                 TonicLine.X2 = chordonymRightEgde;
-                SelectedTonicLine.X2 = chordonymRightEgde + 2;
+                SelectedPitchLine.X2 = chordonymRightEgde + 2;
             }
             else
             {
                 TonicLine.X2 = pitchLineRightEdgeDef;
-                SelectedTonicLine.X2 = pitchLineRightEdgeDef + 2;
+                SelectedPitchLine.X2 = pitchLineRightEdgeDef + 2;
             }
+
+            TonicLine.StrokeThickness = (int)Math.Ceiling(0.04 * OctaveHeight);
+            SelectedPitchLine.StrokeThickness = (int)Math.Ceiling(0.04 * OctaveHeight) + 2;
 
             if (!isProv)
                 pitchLinePoses.Sort((a, b) => a.Item1.CompareTo(b.Item1));
@@ -507,7 +518,7 @@ namespace ShasavicMusicMaker.Controller.Score
         {
             Dictionary<int[], List<(int, Arm)>> formulaDict = [];
 
-            foreach ((int, Arm) tpl in pitchLinePoses)
+            foreach ((double, Arm) tpl in pitchLinePoses)
             {
                 int[] formula1 = BaseAndFormula.CalcBaseAndFomulaOfArm(tpl.Item2).Formula;
                 int lineLevel = formula1[ScoreLineDimension];
@@ -588,7 +599,7 @@ namespace ShasavicMusicMaker.Controller.Score
                             if (value[i].Item1 != level)
                             {
                                 ScoreLine scrLine = new(value[i].Item2, ScoreLineDimension, level - value[i].Item1);
-                                int vPos = (int)(MathF.Log2(scrLine.CalcCoefFromBase()) * OctaveHeight);
+                                double vPos = MathF.Log2(scrLine.CalcCoefFromBase()) * OctaveHeight;
                                 scoreLinePoses.Add((-vPos, scrLine));
                             }
 
@@ -601,7 +612,7 @@ namespace ShasavicMusicMaker.Controller.Score
                         if (value[^1].Item1 != level)
                         {
                             ScoreLine scrLine = new(value[^1].Item2, ScoreLineDimension, level - value[^1].Item1);
-                            int vPos = (int)(MathF.Log2(scrLine.CalcCoefFromBase()) * OctaveHeight);
+                            double vPos = MathF.Log2(scrLine.CalcCoefFromBase()) * OctaveHeight;
                             scoreLinePoses.Add((-vPos, scrLine));
                         }
 
@@ -614,24 +625,25 @@ namespace ShasavicMusicMaker.Controller.Score
             ScoreLineCanvas.Children.Clear();
             Brush brush = DimensionInfo.Colors[ScoreLineDimension];
 
-            foreach ((int, ScoreLine) tpl in scoreLinePoses)
+            foreach ((double, ScoreLine) tpl in scoreLinePoses)
             {
                 Line line = new()
                 {
                     X1 = 0,
                     X2 = PitchLineSelector.Width,
-                    Y1 = tpl.Item1,
-                    Y2 = tpl.Item1,
+                    Y1 = (int)tpl.Item1,
+                    Y2 = (int)tpl.Item1,
                     Stroke = brush,
                     Opacity = 0.5,
-                    StrokeThickness = 4,
+                    StrokeThickness = (int)Math.Ceiling(0.04 * OctaveHeight),
                 };
                 ScoreLineCanvas.Children.Add(line);
             }
         }
 
         private object? provSoundObj; 
-        private object? selectedObj; 
+        private object? selectedObj;
+        private Point? rightButtonStartPint;
 
         private void PitchSoundUpdate(object sender, MouseEventArgs e)
         {
@@ -639,14 +651,14 @@ namespace ShasavicMusicMaker.Controller.Score
             {
                 Point pos = e.GetPosition(ChordonymCanvas);
                 Arm arm = pitchLinePoses[0].Item2;
-                int vPos_Arm = 0;
-                int minDis_Arm = int.MaxValue;
+                double vPos_Arm = 0;
+                double minDis_Arm = double.MaxValue;
 
-                foreach ((int, Arm) linePos in pitchLinePoses)
+                foreach ((double, Arm) linePos in pitchLinePoses)
                 {
-                    int dis = (int)Math.Abs(linePos.Item1 - pos.Y);
+                    double dis = Math.Abs(linePos.Item1 - pos.Y);
 
-                    if (dis < minDis_Arm)
+                    if (dis <= minDis_Arm)
                     {
                         arm = linePos.Item2;
                         vPos_Arm = linePos.Item1;
@@ -658,21 +670,21 @@ namespace ShasavicMusicMaker.Controller.Score
                     }
                 }
 
-                int vPos = vPos_Arm;
+                double vPos = vPos_Arm;
                 BaseAndFormula bas = BaseAndFormula.CalcBaseAndFomulaOfArm(arm);
                 selectedObj = arm;
 
                 if (scoreLinePoses.Count > 0)
                 {
                     ScoreLine scoreLine = scoreLinePoses[0].Item2;
-                    int vPos_ScrLine = 0;
-                    int minDis_ScrLine = int.MaxValue;
+                    double vPos_ScrLine = 0;
+                    double minDis_ScrLine = double.MaxValue;
 
-                    foreach ((int, ScoreLine) linePos in scoreLinePoses)
+                    foreach ((double, ScoreLine) linePos in scoreLinePoses)
                     {
-                        int dis = (int)Math.Abs(linePos.Item1 - pos.Y);
+                        double dis = Math.Abs(linePos.Item1 - pos.Y);
 
-                        if (dis < minDis_ScrLine)
+                        if (dis <= minDis_ScrLine)
                         {
                             scoreLine = linePos.Item2;
                             vPos_ScrLine = linePos.Item1;
@@ -693,7 +705,7 @@ namespace ShasavicMusicMaker.Controller.Score
                 }
 
 
-                SelectedTonicLine.Visibility = Visibility.Visible;
+                SelectedPitchLine.Visibility = Visibility.Visible;
 
                 if (Mouse.RightButton == MouseButtonState.Pressed || Mouse.LeftButton == MouseButtonState.Pressed)
                 {
@@ -716,40 +728,51 @@ namespace ShasavicMusicMaker.Controller.Score
                             #endregion
                         }
 
-                        SelectedTonicLine.Y1 = SelectedTonicLine.Y2 = vPos;
+                        SelectedPitchLine.Y1 = SelectedPitchLine.Y2 = vPos;
 
-                        synth.AllNoteOff();
-                        synth.NoteOn(0, chordonym.OrgnBaseFreq, bas.Formula, 100);
+                        if (SF2VoiceManager is SF2VoiceManager manager2 && manager2.AnySF2sSeted)
+                        {
+                            SF2VoiceManager.AllNoteOff();
+                            NoteOnArg arg = new(0, chordonym.OrgnBaseFreq, bas.Formula, 100);
+                            SF2VoiceManager.NoteOn(0, [arg]);
+                        } 
+                        else if (FuncSynth is not null)
+                        {
+                            FuncSynth.AllNoteOff();
+                            FuncSynth.NoteOn(0, chordonym.OrgnBaseFreq, bas.Formula, 100);
+                        }
 
                         provSoundObj = selectedObj;
-                        SelectedTonicLine.Visibility = Visibility.Visible;
+                        SelectedPitchLine.Visibility = Visibility.Visible;
                     }
                 }
                 else
                 {
                     if (provSoundObj != null)
                     {
-                        synth.AllNoteOff();
+                        SF2VoiceManager?.AllNoteOff();
+                        FuncSynth?.AllNoteOff();
                         provSoundObj = null;
                         UpdateChordonym();
                     }
 
-                    SelectedTonicLine.Visibility = Visibility.Hidden;
+                    SelectedPitchLine.Visibility = Visibility.Hidden;
                 }
             }
         }
 
         private void PitchLineSelector_MouseLeave(object sender, MouseEventArgs e)
         {
-            if (Mouse.RightButton == MouseButtonState.Pressed)
+            if (Mouse.RightButton == MouseButtonState.Pressed || Mouse.LeftButton == MouseButtonState.Pressed)
             {
-                synth.AllNoteOff();
+                SF2VoiceManager?.AllNoteOff();
+                FuncSynth?.AllNoteOff();
                 provSoundObj = null;
                 selectedObj = null;
                 UpdateChordonym();
             }
 
-            SelectedTonicLine.Visibility = Visibility.Hidden;
+            SelectedPitchLine.Visibility = Visibility.Hidden;
         }
 
         private void PitchLineSelector_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -767,6 +790,131 @@ namespace ShasavicMusicMaker.Controller.Score
                     ScoreLine sl2 = new(arm2, sl1.Dimension, sl1.Sceding);
                     sl2.AddToCordonym();
                     ChangeArmOfChordonymCommand command = new(chordonym, chordonym.Arm, arm1);
+                    commandStucker.SubscribeCommand(command);
+                }
+            }
+        }
+
+        private DateTime _lastRightClickTime;
+        private const int DoubleClickThreshold = 300;
+        private Arm? _actionArm;
+
+        private void PitchLineSelector_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (rightButtonStartPint is Point p1 && provSoundObj is Arm arm)
+            {
+                Point end = e.GetPosition(ChordonymCanvas);
+                double dx = end.X - p1.X;
+                double dy = end.Y - p1.Y;
+
+                if (Math.Sqrt(dx * dx + dy * dy) < 5)
+                {
+                    DateTime now = DateTime.Now;
+                    double diff = (now - _lastRightClickTime).TotalMilliseconds;
+                    _lastRightClickTime = now;
+
+                    if (diff < DoubleClickThreshold)
+                    {
+                        SelectedPitchLine.Visibility = Visibility.Hidden;
+
+                        Point p2 = e.GetPosition(RootGrid);
+                        ContextMenuPopup.HorizontalOffset = p2.X + 10;
+                        ContextMenuPopup.VerticalOffset = p2.Y + 10;
+                        ActionPitchLine.X1 = SelectedPitchLine.X1;
+                        ActionPitchLine.X2 = SelectedPitchLine.X2;
+                        ActionPitchLine.Y1 = SelectedPitchLine.Y1;
+                        ActionPitchLine.Y2 = SelectedPitchLine.Y2;
+                        ActionPitchLine.StrokeThickness = SelectedPitchLine.StrokeThickness;
+                        ActionPitchLine.Visibility = Visibility.Visible;
+
+                        ContextMenuPopup.IsOpen = true;
+                        _actionArm = arm;
+                        ContextMenu.BootPitchLineEditor(arm);
+                    }
+
+                }
+            }
+
+            if (provSoundObj != null)
+            {
+                SF2VoiceManager?.AllNoteOff();
+                FuncSynth?.AllNoteOff();
+                provSoundObj = null;
+                UpdateChordonym();
+            }
+
+            SelectedPitchLine.Visibility = Visibility.Hidden;
+            rightButtonStartPint = null;
+        }
+
+        private void PitchLineSelector_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            rightButtonStartPint = e.GetPosition(ChordonymCanvas);
+            PitchSoundUpdate(sender, e);
+        }
+
+        private void CloseContextMenuPopup(object sender, EventArgs e)
+        {
+            ContextMenuPopup.IsOpen = false;
+        }
+
+        private void ContextMenuPopup_Closed(object sender, EventArgs e)
+        {
+            ActionPitchLine.Visibility = Visibility.Hidden;
+        }
+
+        private void RemoveArm(object sender, EventArgs e)
+        {
+            if (_actionArm is Arm arm1 && DataContext is Chordonym chordonym && commandStucker is not null)
+            {
+                if (arm1.Body is not null)
+                {
+                    BaseAndFormula baf = BaseAndFormula.CalcBaseAndFomulaOfArm(arm1);
+                    Arm arm2 = chordonym.Arm.Clone();
+                    Dictionary<BaseAndFormula, Arm> dict =
+                        BaseAndFormula.GetArmsDictOfChordonym(arm2);
+
+                    if (dict.FirstOrDefault(kv => kv.Key.Formula.SequenceEqual(baf.Formula)).Value is Arm arm3 && arm3.Body is not null)
+                    {
+                        arm3.Body.Arms.Remove(arm3);
+                        ChangeArmOfChordonymCommand command = new(chordonym, chordonym.Arm, arm2);
+                        commandStucker.SubscribeCommand(command);
+                    }
+                }
+            }
+        }
+
+        private void MuteArm(object sender, EventArgs e)
+        {
+            if (_actionArm is Arm arm1 && DataContext is Chordonym chordonym && commandStucker is not null)
+            {
+                BaseAndFormula baf = BaseAndFormula.CalcBaseAndFomulaOfArm(arm1);
+                Arm arm2 = chordonym.Arm.Clone();
+                Dictionary<BaseAndFormula, Arm> dict =
+                    BaseAndFormula.GetArmsDictOfChordonym(arm2);
+
+                if (dict.FirstOrDefault(kv => kv.Key.Formula.SequenceEqual(baf.Formula)).Value is Arm arm3)
+                {
+                    arm3.Muted = true;
+                    ChangeArmOfChordonymCommand command = new(chordonym, chordonym.Arm, arm2);
+                    commandStucker.SubscribeCommand(command);
+                }
+            }
+        }
+
+        private void UnmuteArm(object sender, EventArgs e)
+        {
+            if (_actionArm is Arm arm1 && DataContext is Chordonym chordonym && commandStucker is not null)
+            {
+                BaseAndFormula baf = BaseAndFormula.CalcBaseAndFomulaOfArm(arm1);
+                Arm arm2 = chordonym.Arm.Clone();
+                Dictionary<BaseAndFormula, Arm> dict =
+                    BaseAndFormula.GetArmsDictOfChordonym(arm2);
+
+                if (dict.FirstOrDefault(kv => kv.Key.Formula.SequenceEqual(baf.Formula)).Value is Arm arm3)
+                {
+                    arm3.Muted = false;
+                    ChangeArmOfChordonymCommand command = new(chordonym, chordonym.Arm, arm2);
                     commandStucker.SubscribeCommand(command);
                 }
             }

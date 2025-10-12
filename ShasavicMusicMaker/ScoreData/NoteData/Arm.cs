@@ -33,6 +33,8 @@ namespace ShasavicMusicMaker.ScoreData.NoteData
         /// </summary>
         public List<Arm> Arms { get; private set; }
 
+        public bool Muted { get; set; } = false;
+
         /// <summary>
         /// 初期状態では腕を持たない底音を表す。
         /// </summary>
