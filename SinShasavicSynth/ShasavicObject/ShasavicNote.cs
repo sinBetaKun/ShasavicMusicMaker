@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using NAudio.Mixer;
 using NAudio.Wave.SampleProviders;
 using SinShasavicSynthSF2.SynthEngineCore.Voice;
 
@@ -10,32 +6,42 @@ namespace SinShasavicSynthSF2.ShasavicObject
 {
     internal class ShasavicNote
     {
-        private readonly MixingSampleProvider mixer;
+        private readonly MixingSampleProvider _mixer;
         public readonly ShasavicTone tone;
-        private readonly VoiceBase[] voices;
+        private readonly NoteVoiceBase[] voices;
         private readonly bool[] voicesFinished;
         public bool IsFinished { get; private set; }
 
-        public ShasavicNote(MixingSampleProvider mixer, ShasavicTone tone, IEnumerable<VoiceBase> voices)
+        public ShasavicNote(MixingSampleProvider mixer, ShasavicTone tone, IEnumerable<NoteVoiceBase> voices)
         {
-            this.mixer = mixer;
+            _mixer = mixer;
             this.tone = tone;
             this.voices = [.. voices];
             voicesFinished = new bool[this.voices.Length];
 
-            foreach (VoiceBase voice in voices)
-                mixer.AddMixerInput(voice);
+            foreach (NoteVoiceBase voice in voices)
+            {
+                if (voice.WaveFormat.SampleRate == _mixer.WaveFormat.SampleRate)
+                {
+                    _mixer.AddMixerInput(voice);
+                }
+                else
+                {
+                    WdlResamplingSampleProvider provider = new(voice, _mixer.WaveFormat.SampleRate);
+                    _mixer.AddMixerInput(provider);
+                }
+            }
         }
 
         public void NoteOn()
         {
-            foreach (VoiceBase voice in voices)
+            foreach (NoteVoiceBase voice in voices)
                 voice.NoteOn();
         }
 
         public void NoteOff()
         {
-            foreach (VoiceBase voice in voices)
+            foreach (NoteVoiceBase voice in voices)
                 voice.NoteOff();
         }
 
@@ -50,7 +56,7 @@ namespace SinShasavicSynthSF2.ShasavicObject
                     if (voices[i].IsFinished)
                     {
                         voicesFinished[i] = true;
-                        mixer.RemoveMixerInput(voices[i]);
+                        _mixer.RemoveMixerInput(voices[i]);
                     }
                     else
                     {

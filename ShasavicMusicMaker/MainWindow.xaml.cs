@@ -1,17 +1,15 @@
-﻿using System.Text;
+﻿using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
+using ShasavicMusicMaker.Controller.Score;
+using SinShasavicSynthSF2.ShasavicObject.Event;
+using SinShasavicSynthSF2.SoundFont;
+using SinShasavicSynthSF2.SoundFont.SF2Data.BuiltData;
+using SinShasavicSynthSF2.SynthEngineCore;
+using SinShasavicSynthSF2.SynthEngineCore.Voice;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using ShasavicMusicMaker.Controller.Score;
-using SinShasavicSynthSF2.SoundFont;
-using SinShasavicSynthSF2.SynthEngineCore;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ShasavicMusicMaker
 {
@@ -20,12 +18,9 @@ namespace ShasavicMusicMaker
     /// </summary>
     public partial class MainWindow : Window
     {
-        readonly Synthesizer synthesizer;
-
         public MainWindow()
         {
             InitializeComponent();
-            synthesizer = new Synthesizer();
         }
 
         ChordonymTest? chordonymTest;

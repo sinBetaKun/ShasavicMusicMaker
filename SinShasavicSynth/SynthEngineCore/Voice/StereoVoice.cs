@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace SinShasavicSynthSF2.SynthEngineCore.Voice
 {
-    internal class StereoVoice : VoiceBase
+    internal class StereoVoice : NoteVoiceBase
     {
         private readonly EnvelopeGenerator ampEnvelope;
 
@@ -26,7 +26,7 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
         private bool isFinished_L = false;
         private bool isFinished_R = false;
 
-        public StereoVoice(BuiltSF2 builtData, InstrumentRegion region, float pitch = 1.0f)
+        public StereoVoice(BuiltSF2 builtData, InstrumentRegion region, float pitch = 1.0f, float vol = 1.0f)
         {
             constPitchRatio = DefaultPitchCalculater.Calc(region) * pitch;
             ampEnvelope = new(region);
@@ -44,7 +44,9 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
 
                     for (int i = 0; i < length; i++)
                     {
-                        sampleBuffer_L[i] /= 32768.0f;
+                        sampleBuffer_L[i] *= vol;
+                        if (sampleBuffer_L[i] < -1) sampleBuffer_L[i] = -1;
+                        else if (sampleBuffer_L[i] > 1) sampleBuffer_L[i] = 1;
                     }
 
                     sampleRate = (int)header.SampleRate;
@@ -52,7 +54,7 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
 
                     loopStart_L = loopStart_R = (int)(header.Loopstart - start);
                     loopEnd_L = loopEnd_R = (int)(header.Loopend - start);
-                    isLooping_L = isLooping_R = loopStart_L < loopEnd_L;
+                    isLooping_L = isLooping_R = header.IsLoop;
 
                     break;
 
@@ -68,7 +70,9 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
 
                     for (int i = 0; i < length_L; i++)
                     {
-                        sampleBuffer_L[i] /= 32768.0f;
+                        sampleBuffer_L[i] *= vol;
+                        if (sampleBuffer_L[i] < -1) sampleBuffer_L[i] = -1;
+                        else if (sampleBuffer_L[i] > 1) sampleBuffer_L[i] = 1;
                     }
 
                     uint start_R = header_R.Start;
@@ -79,7 +83,9 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
 
                     for (int i = 0; i < length_R; i++)
                     {
-                        sampleBuffer_R[i] /= 32768.0f;
+                        sampleBuffer_R[i] *= vol;
+                        if (sampleBuffer_R[i] < -1) sampleBuffer_R[i] = -1;
+                        else if (sampleBuffer_R[i] > 1) sampleBuffer_R[i] = 1;
                     }
 
                     sampleRate = (int)header_L.SampleRate;
@@ -87,11 +93,11 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
 
                     loopStart_L = (int)(header_L.Loopstart - start_L);
                     loopEnd_L = (int)(header_L.Loopend - start_L);
-                    isLooping_L = loopStart_L < loopEnd_L;
+                    isLooping_L = header_L.IsLoop;
 
                     loopStart_R = (int)(header_R.Loopstart - start_R);
                     loopEnd_R = (int)(header_R.Loopend - start_R);
-                    isLooping_R = loopStart_R < loopEnd_R;
+                    isLooping_R = header_R.IsLoop;
                     break;
 
                 default:

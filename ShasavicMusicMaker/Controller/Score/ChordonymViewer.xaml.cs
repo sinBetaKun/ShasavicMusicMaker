@@ -2,6 +2,7 @@
 using ShasavicMusicMaker.Command.Event.ChordonymChange;
 using ShasavicMusicMaker.DimensionData;
 using ShasavicMusicMaker.ScoreData.NoteData;
+using SinShasavicSynthSF2.ShasavicObject.Event;
 using SinShasavicSynthSF2.SynthEngineCore;
 using System.Reflection;
 using System.Windows;
@@ -17,10 +18,12 @@ namespace ShasavicMusicMaker.Controller.Score
     /// </summary>
     public partial class ChordonymViewer : UserControl
     {
-        private readonly FunctionSynth synth;
         private readonly List<(double, Arm)> pitchLinePoses;
         private readonly List<(double, ScoreLine)> scoreLinePoses;
         private CommandStucker? commandStucker;
+
+        public FunctionSynth? FuncSynth { get; set; }
+        public SF2VoiceManager? SF2VoiceManager { get; set; }
 
         /// <summary>
         /// コンストラクタの後にSetCommandStuckerも一緒に実行すること。
@@ -28,7 +31,6 @@ namespace ShasavicMusicMaker.Controller.Score
         public ChordonymViewer()
         {
             InitializeComponent();
-            synth = new();
             pitchLinePoses = [];
             scoreLinePoses = [];
             UpdateScoreLines();
@@ -728,8 +730,17 @@ namespace ShasavicMusicMaker.Controller.Score
 
                         SelectedPitchLine.Y1 = SelectedPitchLine.Y2 = vPos;
 
-                        synth.AllNoteOff();
-                        synth.NoteOn(0, chordonym.OrgnBaseFreq, bas.Formula, 100);
+                        if (SF2VoiceManager is SF2VoiceManager manager2 && manager2.AnySF2sSeted)
+                        {
+                            SF2VoiceManager.AllNoteOff();
+                            NoteOnArg arg = new(0, chordonym.OrgnBaseFreq, bas.Formula, 100);
+                            SF2VoiceManager.NoteOn(0, [arg]);
+                        } 
+                        else if (FuncSynth is not null)
+                        {
+                            FuncSynth.AllNoteOff();
+                            FuncSynth.NoteOn(0, chordonym.OrgnBaseFreq, bas.Formula, 100);
+                        }
 
                         provSoundObj = selectedObj;
                         SelectedPitchLine.Visibility = Visibility.Visible;
@@ -739,7 +750,8 @@ namespace ShasavicMusicMaker.Controller.Score
                 {
                     if (provSoundObj != null)
                     {
-                        synth.AllNoteOff();
+                        SF2VoiceManager?.AllNoteOff();
+                        FuncSynth?.AllNoteOff();
                         provSoundObj = null;
                         UpdateChordonym();
                     }
@@ -753,7 +765,8 @@ namespace ShasavicMusicMaker.Controller.Score
         {
             if (Mouse.RightButton == MouseButtonState.Pressed || Mouse.LeftButton == MouseButtonState.Pressed)
             {
-                synth.AllNoteOff();
+                SF2VoiceManager?.AllNoteOff();
+                FuncSynth?.AllNoteOff();
                 provSoundObj = null;
                 selectedObj = null;
                 UpdateChordonym();
@@ -824,7 +837,8 @@ namespace ShasavicMusicMaker.Controller.Score
 
             if (provSoundObj != null)
             {
-                synth.AllNoteOff();
+                SF2VoiceManager?.AllNoteOff();
+                FuncSynth?.AllNoteOff();
                 provSoundObj = null;
                 UpdateChordonym();
             }

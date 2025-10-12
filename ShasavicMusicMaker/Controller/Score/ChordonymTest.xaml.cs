@@ -1,5 +1,7 @@
-﻿using ShasavicMusicMaker.Command;
+﻿using NAudio.Wave;
+using ShasavicMusicMaker.Command;
 using ShasavicMusicMaker.ScoreData.NoteData;
+using SinShasavicSynthSF2.ShasavicObject.Event;
 using SinShasavicSynthSF2.SynthEngineCore;
 using System.Windows;
 using System.Windows.Forms;
@@ -12,7 +14,7 @@ namespace ShasavicMusicMaker.Controller.Score
     public partial class ChordonymTest : Window
     {
         private readonly FunctionSynth func_synth;
-        private readonly Synthesizer synthesizer;
+        private readonly SF2VoiceManager _sf_voiceManager;
         private readonly Chordonym chordonym;
         private readonly CommandStucker commandStucker;
         private bool isFunc = true;
@@ -21,10 +23,12 @@ namespace ShasavicMusicMaker.Controller.Score
         {
             InitializeComponent();
             func_synth = new();
-            synthesizer = new Synthesizer();
-            chordonym = new(512);
+            _sf_voiceManager = new();
+            chordonym = new(440);
             commandStucker = new();
             commandStucker.CommandSubscribed += UpdateUndoRedoButton;
+            Viewer.SF2VoiceManager = _sf_voiceManager;
+            Viewer.FuncSynth = func_synth;
             Viewer.SetCommandStucker(commandStucker);
             Viewer.DataContext = chordonym;
             Viewer.SetSelectorVerticalEdge(1000, -1000);
@@ -82,7 +86,7 @@ namespace ShasavicMusicMaker.Controller.Score
                 if (isFunc)
                     func_synth.AllNoteOff();
                 else
-                    synthesizer.AllNoteOff();
+                    _sf_voiceManager.AllNoteOff();
             }
             else
             {
@@ -101,24 +105,40 @@ namespace ShasavicMusicMaker.Controller.Score
 
                 List<Arm> arms1 = [chordonym.Arm];
                 List<Arm> arms2 = [];
+                List<NoteOnArg> args = [];
 
                 while(arms1.Count > 0)
                 {
-                    foreach (Arm arm in arms1)
+                    if (isFunc)
                     {
-                        if (!arm.Muted)
+                        foreach (Arm arm in arms1)
                         {
-                            if (isFunc)
+                            if (!arm.Muted)
+                            {
                                 func_synth.NoteOn(0, chordonym.OrgnBaseFreq, BaseAndFormula.CalcBaseAndFomulaOfArm(arm).Formula, 100);
-                            else
-                                synthesizer.NoteOn(0, chordonym.OrgnBaseFreq, BaseAndFormula.CalcBaseAndFomulaOfArm(arm).Formula, 100);
-
-                            arms2.AddRange(arm.Arms);
+                                arms2.AddRange(arm.Arms);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        foreach (Arm arm in arms1)
+                        {
+                            if (!arm.Muted)
+                            {
+                                args.Add(new(0, chordonym.OrgnBaseFreq, BaseAndFormula.CalcBaseAndFomulaOfArm(arm).Formula, 100));
+                                arms2.AddRange(arm.Arms);
+                            }
                         }
                     }
 
                     arms1 = arms2;
                     arms2 = [];
+                }
+
+                if (!isFunc)
+                {
+                    _sf_voiceManager.NoteOn(0, args);
                 }
             }
         }
@@ -160,7 +180,7 @@ namespace ShasavicMusicMaker.Controller.Score
             {
                 try
                 {
-                    synthesizer.LoadSoundFontList([od.FileName]);
+                    _sf_voiceManager.LoadSF2List([od.FileName]);
                     System.Windows.Forms.MessageBox.Show(
                         "OK",
                         "OK",
@@ -184,7 +204,7 @@ namespace ShasavicMusicMaker.Controller.Score
 
         private void UnoadSF2Click(object sender, RoutedEventArgs e)
         {
-            synthesizer.LoadSoundFontList([]);
+            _sf_voiceManager.LoadSF2List([]);
             isFunc = true;
         }
     }

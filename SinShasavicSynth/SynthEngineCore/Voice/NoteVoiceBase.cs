@@ -7,7 +7,7 @@ using NAudio.Wave;
 
 namespace SinShasavicSynthSF2.SynthEngineCore.Voice
 {
-    internal abstract class VoiceBase : ISampleProvider
+    public abstract class NoteVoiceBase : ISampleProvider
     {
         public abstract WaveFormat WaveFormat { get; }
 

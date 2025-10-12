@@ -16,7 +16,7 @@ namespace SinShasavicSynthSF2.SynthEngineCore
 
         private class Channel
         {
-            private WaveFunction function = WaveFunction.Extra;
+            private WaveFunction function = WaveFunction.NoiseAttackSine;
             private readonly List<ShasavicNote> stack = [];
             private readonly MixingSampleProvider mixer;
             private readonly int sampleRate;
@@ -35,7 +35,7 @@ namespace SinShasavicSynthSF2.SynthEngineCore
             public void NoteOn(float baseFreq, int[] formula, int vel)
             {
                 ShasavicTone tone = new(baseFreq, formula);
-                VoiceBase voice;
+                NoteVoiceBase voice;
 
                 switch (function)
                 {
@@ -68,18 +68,13 @@ namespace SinShasavicSynthSF2.SynthEngineCore
 
             public void Cleanup()
             {
-                List<ShasavicNote> finishedNotes = [];
-
                 foreach (ShasavicNote note in stack)
                 {
                     note.Cleanup();
 
                     if (note.IsFinished)
-                        finishedNotes.Add(note);
+                        stack.Remove(note);
                 }
-
-                foreach (ShasavicNote note in finishedNotes)
-                    stack.Remove(note);
             }
         }
 

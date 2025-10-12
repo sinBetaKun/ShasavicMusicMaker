@@ -1,8 +1,9 @@
 ﻿using NAudio.Wave;
+using static SinShasavicSynthSF2.SynthEngineCore.EnvelopeGenerator;
 
 namespace SinShasavicSynthSF2.SynthEngineCore.Voice
 {
-    internal class ExtraWaveVoice : VoiceBase
+    internal class ExtraWaveVoice : NoteVoiceBase
     {
         private readonly EnvelopeGenerator ampEnvelope;
         private readonly float frequency;
@@ -77,7 +78,7 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
             {
                 float envVal = ampEnvelope.Process();
 
-                if (envVal <= 0)
+                if (ampEnvelope.State == EnvelopeState.Done)
                 {
                     IsFinished = true;
                     return i * 2;

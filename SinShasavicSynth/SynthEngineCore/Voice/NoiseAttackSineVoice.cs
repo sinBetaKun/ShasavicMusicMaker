@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NAudio.Wave;
+﻿using NAudio.Wave;
+using static SinShasavicSynthSF2.SynthEngineCore.EnvelopeGenerator;
 
 namespace SinShasavicSynthSF2.SynthEngineCore.Voice
 {
-    internal class NoiseAttackSineVoice : VoiceBase
+    internal class NoiseAttackSineVoice : NoteVoiceBase
     {
         private readonly EnvelopeGenerator ampEnvelope;
         private readonly float frequency;
@@ -82,7 +78,7 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
             {
                 float envVal = ampEnvelope.Process();
 
-                if (envVal <= 0)
+                if (ampEnvelope.State == EnvelopeState.Done)
                 {
                     IsFinished = true;
                     return i * 2;
