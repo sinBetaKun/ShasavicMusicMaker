@@ -1,27 +1,29 @@
 ﻿
+using SinShasavicSynthSF2.ShasavicObject.Event;
+
 namespace SinShasavicSynthSF2.SynthEngineCore
 {
     public class FunctionSynth
     {
-        private readonly FunctionVoiceManager voiceManager = new();
+        private readonly FunctionVoiceManager _voiceManager = new();
 
         public FunctionSynth()
         {
         }
 
-        public void NoteOn(int ch, float baseFreq, int[] formula, int vel)
+        public void NoteOn(IEnumerable<NoteOnArg> args)
         {
-            voiceManager.NoteOn(ch, baseFreq, formula, vel);
+            _voiceManager.NoteOn(args);
         }
 
-        public void NoteOff(int ch, float baseFreq, int[] formula)
+        public void NoteOff(IEnumerable<NoteOffArg> args)
         {
-            voiceManager.NoteOff(ch, baseFreq, formula);
+            _voiceManager.NoteOff(args);
         }
 
         public void AllNoteOff()
         {
-            voiceManager.AllNoteOff();
+            _voiceManager.AllNoteOff();
         }
     }
 }

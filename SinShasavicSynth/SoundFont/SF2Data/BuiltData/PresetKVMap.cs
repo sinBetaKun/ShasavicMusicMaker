@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SinShasavicSynthSF2.SoundFont.SF2Data.BuiltData
+﻿namespace SinShasavicSynthSF2.SoundFont.SF2Data.BuiltData
 {
+    /// <summary>
+    /// ぼ く が か ん が え た<br/>
+    /// KeyとVelの一番近い音を探すための<br/>
+    /// さ い き ょ う の マ ッ プ
+    /// </summary>
     internal class PresetKVMap
     {
         /// <summary>
@@ -66,8 +65,8 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.BuiltData
             regions.Sort((t1, t2) => t1.Item1.CompareTo(t2.Item1));
             map = [.. regions];
         }
-
-        public KeyVelCompleter GetKVCompleter(byte key, byte vel)
+/*
+        public KeyCompleter GetKVCompleter(byte key, byte vel)
         {
             if (map.FirstOrDefault(kt => kt.Item1 == key).Item2 is (byte, InstrumentRegion[])[] vts)
             {
@@ -138,6 +137,6 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.BuiltData
                     return new(vt.Item2, pitch, 1f * vel / vt.Item1);
                 }
             }
-        }
+        }*/
     }
 }

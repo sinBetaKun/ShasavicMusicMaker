@@ -5,7 +5,7 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Sdta
     internal class SdtaChunk
     {
         public SmplChunk Smpl { get; init; }
-        readonly Sm24Chunk? sm24;
+        private readonly Sm24Chunk? _sm24;
 
         static string ID => "LIST";
         static string Type => "sdta";
@@ -28,7 +28,7 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Sdta
 
             if (size - 12 != Smpl.Size)
             {
-                sm24 = new(reader);
+                _sm24 = new Sm24Chunk(reader);
             }
         }
     }

@@ -7,7 +7,7 @@ using SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Pdta;
 
 namespace SinShasavicSynthSF2.SoundFont.SF2Data.BuiltData
 {
-    internal class SampleHeader_b
+    internal record SampleHeader_b
     {
         /// <summary>
         /// 音声波形データの開始位置(単位：サンプル)

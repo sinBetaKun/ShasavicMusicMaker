@@ -1,6 +1,6 @@
 ﻿namespace SinShasavicSynthSF2.ShasavicObject.Event
 {
-    public class NoteOnArg(int ch, float baseFreq, int[] fml, byte vel)
+    public class NoteOnArg(int ch, float baseFreq, int[] fml, byte vel) : INoteEventArg
     {
         public int Channel { get; init; } = ch;
 

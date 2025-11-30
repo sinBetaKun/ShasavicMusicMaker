@@ -4,7 +4,6 @@ using ShasavicMusicMaker.DimensionData;
 using ShasavicMusicMaker.ScoreData.NoteData;
 using SinShasavicSynthSF2.ShasavicObject.Event;
 using SinShasavicSynthSF2.SynthEngineCore;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -22,8 +21,10 @@ namespace ShasavicMusicMaker.Controller.Score
         private readonly List<(double, ScoreLine)> scoreLinePoses;
         private CommandStucker? commandStucker;
 
-        public FunctionSynth? FuncSynth { get; set; }
+        public FunctionVoiceManager? FuncVoiceManager { get; set; }
         public SF2VoiceManager? SF2VoiceManager { get; set; }
+
+        public event EventHandler? ChordonymChanged;
 
         /// <summary>
         /// コンストラクタの後にSetCommandStuckerも一緒に実行すること。
@@ -99,6 +100,7 @@ namespace ShasavicMusicMaker.Controller.Score
             if (DataContext is Chordonym chordonym)
             {
                 SimulateChordonym(chordonym, false);
+                ChordonymChanged?.Invoke(null, EventArgs.Empty);
             }
         }
 
@@ -170,7 +172,7 @@ namespace ShasavicMusicMaker.Controller.Score
             #endregion
 
             ChordonymCanvas.Children.Clear();
-            int lineThickness = (int)Math.Ceiling(0.08 * OctaveHeight);
+            int dimLineThickness = (int)Math.Ceiling(0.08 * OctaveHeight);
             int distance = (int)Math.Ceiling(0.12 * OctaveHeight);
             int hOffset = distance;
             Dictionary<int, List<Arm>> armHEdgeDict = [];
@@ -187,7 +189,7 @@ namespace ShasavicMusicMaker.Controller.Score
                 {
                     Rectangle dLine = new()
                     {
-                        Width = lineThickness,
+                        Width = dimLineThickness,
                         Height = top_2d,
                         Fill = DimensionInfo.Colors[1]
                     };
@@ -197,12 +199,12 @@ namespace ShasavicMusicMaker.Controller.Score
                     armHPoses.Add(arm);
                 }
 
-                hOffset += lineThickness + distance;
+                hOffset += dimLineThickness + distance;
             }
             #endregion
 
             int left1 = (int)(0.3 * OctaveHeight);
-            int left2 = left1 + lineThickness;
+            int left2 = left1 + dimLineThickness;
 
             #region 6dLine
             int top_6d = (int)(MathF.Log2(DimensionInfo.Coefs[5]) * OctaveHeight);
@@ -219,7 +221,7 @@ namespace ShasavicMusicMaker.Controller.Score
                 new(left2, top_6d),
                 true));
             figure_6d.Segments.Add(new QuadraticBezierSegment(
-                new(lineThickness, top_6d / 2),
+                new(dimLineThickness, top_6d / 2),
                 new(left2, 0), true
                 ));
             PathGeometry geometry_6d = new();
@@ -249,7 +251,7 @@ namespace ShasavicMusicMaker.Controller.Score
 
             int pitchLineLeftEdgeDef = hOffset;
             int left3 = (int)(0.6 * OctaveHeight);
-            int left4 = left3 + lineThickness;
+            int left4 = left3 + dimLineThickness;
             List<Arm> armHPoses_4d_5d = [];
             armHEdgeDict.Add(hOffset, armHPoses_4d_5d);
 
@@ -267,7 +269,7 @@ namespace ShasavicMusicMaker.Controller.Score
                 new(left4, -top_4d),
                 true));
             figure_4d.Segments.Add(new LineSegment(
-                new(lineThickness, 0),
+                new(dimLineThickness, 0),
                 true));
             PathGeometry geometry_4d = new();
             geometry_4d.Figures.Add(figure_4d);
@@ -297,7 +299,7 @@ namespace ShasavicMusicMaker.Controller.Score
                 new(0, -top_5d),
                 true));
             figure_5d.Segments.Add(new LineSegment(
-                new(lineThickness, -top_5d),
+                new(dimLineThickness, -top_5d),
                 true));
             figure_5d.Segments.Add(new LineSegment(
                 new(left4, 0),
@@ -328,13 +330,13 @@ namespace ShasavicMusicMaker.Controller.Score
             foreach (List<(Arm, BaseAndFormula)> linePoses in dimLineHVPositions[2])
             {
                 List<Arm> armHPoses = [];
-                armHEdgeDict.Add(hOffset + lineThickness, armHPoses);
+                armHEdgeDict.Add(hOffset + dimLineThickness, armHPoses);
 
                 foreach ((Arm arm, BaseAndFormula baf) in linePoses)
                 {
                     Rectangle dLine = new()
                     {
-                        Width = lineThickness,
+                        Width = dimLineThickness,
                         Height = top_3d,
                         Fill = DimensionInfo.Colors[2]
                     };
@@ -344,14 +346,14 @@ namespace ShasavicMusicMaker.Controller.Score
                     armHPoses.Add(arm);
                 }
 
-                hOffset += lineThickness + distance;
+                hOffset += dimLineThickness + distance;
             }
             #endregion
 
             #region 1dLine
             int top_1d = (int)OctaveHeight;
             int left5 = (int)(0.1f * OctaveHeight);
-            int thickness_1d = (int)(0.5f * lineThickness);
+            int thickness_1d = (int)(0.5f * dimLineThickness);
             PathFigure figure_1d_up = new()
             {
                 StartPoint = new(0, 0)
@@ -426,6 +428,9 @@ namespace ShasavicMusicMaker.Controller.Score
                 pitchLinePoses.Add((0, chordonym.Arm));
             }
 
+            int toneLineRightEdge = pitchLineRightEdgeDef;
+            int pitchLineThickness = (int)Math.Ceiling(0.04 * OctaveHeight);
+
             if (chordonym.Arm.Arms.Count > 0)
             {
                 int chordonymRightEgde = pitchLineRightEdgeDef;
@@ -477,16 +482,49 @@ namespace ShasavicMusicMaker.Controller.Score
 
                         int vPos = -(int)armVPosDict[arm1];
 
-                        Line line = new()
+                        if (arm1.Muted)
                         {
-                            X1 = leftEdge,
-                            X2 = rightEdge,
-                            Y1 = vPos,
-                            Y2 = vPos,
-                            Stroke = new SolidColorBrush(Colors.White),
-                            StrokeThickness = (int)Math.Ceiling(0.04 * OctaveHeight),
-                        };
-                        ChordonymCanvas.Children.Add(line);
+                            int penPos = leftEdge;
+
+                            while (penPos < rightEdge - pitchLineThickness * 4)
+                            {
+                                Line line = new()
+                                {
+                                    X1 = penPos,
+                                    X2 = penPos + pitchLineThickness * 2,
+                                    Y1 = vPos,
+                                    Y2 = vPos,
+                                    Stroke = new SolidColorBrush(Colors.White),
+                                    StrokeThickness = pitchLineThickness,
+                                };
+                                ChordonymCanvas.Children.Add(line);
+                                penPos += pitchLineThickness * 4;
+                            }
+
+                            Line lastLine = new()
+                            {
+                                X1 = penPos,
+                                X2 = MathF.Ceiling(MathF.Min(penPos + pitchLineThickness * 2, rightEdge)),
+                                Y1 = vPos,
+                                Y2 = vPos,
+                                Stroke = new SolidColorBrush(Colors.White),
+                                StrokeThickness = pitchLineThickness,
+                            };
+                            ChordonymCanvas.Children.Add(lastLine);
+                        }
+                        else
+                        {
+                            Line line = new()
+                            {
+                                X1 = leftEdge,
+                                X2 = rightEdge,
+                                Y1 = vPos,
+                                Y2 = vPos,
+                                Stroke = new SolidColorBrush(Colors.White),
+                                StrokeThickness = pitchLineThickness,
+                            };
+                            ChordonymCanvas.Children.Add(line);
+                        }
 
                         if (!isProv)
                             pitchLinePoses.Add((-armVPosDict[arm1], arm1));
@@ -496,21 +534,63 @@ namespace ShasavicMusicMaker.Controller.Score
                     arms2 = [];
                 }
 
-                TonicLine.X2 = chordonymRightEgde;
-                SelectedPitchLine.X2 = chordonymRightEgde + 2;
+                toneLineRightEdge = chordonymRightEgde;
+            }
+
+            if (chordonym.Arm.Muted)
+            {
+                int penPos = 0;
+
+                while (penPos < toneLineRightEdge - pitchLineThickness * 4)
+                {
+                    Line line = new()
+                    {
+                        X1 = penPos,
+                        X2 = penPos + pitchLineThickness * 2,
+                        Y1 = 0,
+                        Y2 = 0,
+                        Stroke = new SolidColorBrush(Colors.White),
+                        StrokeThickness = pitchLineThickness,
+                    };
+                    ChordonymCanvas.Children.Add(line);
+                    penPos += pitchLineThickness * 4;
+                }
+
+                Line lastLine = new()
+                {
+                    X1 = penPos,
+                    X2 = MathF.Ceiling(MathF.Min(penPos + pitchLineThickness * 2, toneLineRightEdge)),
+                    Y1 = 0,
+                    Y2 = 0,
+                    Stroke = new SolidColorBrush(Colors.White),
+                    StrokeThickness = pitchLineThickness,
+                };
+                ChordonymCanvas.Children.Add(lastLine);
             }
             else
             {
-                TonicLine.X2 = pitchLineRightEdgeDef;
-                SelectedPitchLine.X2 = pitchLineRightEdgeDef + 2;
+                Line toneLine = new()
+                {
+                    X1 = 0,
+                    X2 = toneLineRightEdge,
+                    Y1 = 0,
+                    Y2 = 0,
+                    Stroke = new SolidColorBrush(Colors.White),
+                    StrokeThickness = pitchLineThickness,
+                };
+                ChordonymCanvas.Children.Add(toneLine);
             }
 
-            TonicLine.StrokeThickness = (int)Math.Ceiling(0.04 * OctaveHeight);
+            PitchLineSelector.Width = toneLineRightEdge;
+            //TonicLine.X2 = chordonymRightEgde;
+            SelectedPitchLine.X2 = toneLineRightEdge + 2;
+
+            //TonicLine.StrokeThickness = (int)Math.Ceiling(0.04 * OctaveHeight);
             SelectedPitchLine.StrokeThickness = (int)Math.Ceiling(0.04 * OctaveHeight) + 2;
 
             if (!isProv)
                 pitchLinePoses.Sort((a, b) => a.Item1.CompareTo(b.Item1));
-            PitchLineSelector.Width = TonicLine.X2;
+            //PitchLineSelector.Width = TonicLine.X2;
             #endregion
         }
 
@@ -644,6 +724,7 @@ namespace ShasavicMusicMaker.Controller.Score
         private object? provSoundObj; 
         private object? selectedObj;
         private Point? rightButtonStartPint;
+        private NoteOnArg? holded = null;
 
         private void PitchSoundUpdate(object sender, MouseEventArgs e)
         {
@@ -732,14 +813,29 @@ namespace ShasavicMusicMaker.Controller.Score
 
                         if (SF2VoiceManager is SF2VoiceManager manager2 && manager2.AnySF2sSeted)
                         {
-                            SF2VoiceManager.AllNoteOff();
+                            if (holded is not null)
+                            {
+                                NoteOffArg offArg = new(holded);
+                                SF2VoiceManager.NoteOff([offArg]);
+                                holded = null;
+                            }
+
                             NoteOnArg arg = new(0, chordonym.OrgnBaseFreq, bas.Formula, 100);
-                            SF2VoiceManager.NoteOn(0, [arg]);
+                            SF2VoiceManager.NoteOn([arg]);
+                            holded = arg;
                         } 
-                        else if (FuncSynth is not null)
+                        else if (FuncVoiceManager is not null)
                         {
-                            FuncSynth.AllNoteOff();
-                            FuncSynth.NoteOn(0, chordonym.OrgnBaseFreq, bas.Formula, 100);
+                            if (holded is not null)
+                            {
+                                NoteOffArg offArg = new(holded);
+                                FuncVoiceManager.NoteOff([offArg]);
+                                holded = null;
+                            }
+
+                            NoteOnArg arg = new(0, chordonym.OrgnBaseFreq, bas.Formula, 100);
+                            FuncVoiceManager.NoteOn([arg]);
+                            holded = arg;
                         }
 
                         provSoundObj = selectedObj;
@@ -751,7 +847,7 @@ namespace ShasavicMusicMaker.Controller.Score
                     if (provSoundObj != null)
                     {
                         SF2VoiceManager?.AllNoteOff();
-                        FuncSynth?.AllNoteOff();
+                        FuncVoiceManager?.AllNoteOff();
                         provSoundObj = null;
                         UpdateChordonym();
                     }
@@ -765,8 +861,14 @@ namespace ShasavicMusicMaker.Controller.Score
         {
             if (Mouse.RightButton == MouseButtonState.Pressed || Mouse.LeftButton == MouseButtonState.Pressed)
             {
-                SF2VoiceManager?.AllNoteOff();
-                FuncSynth?.AllNoteOff();
+                if (holded is not null)
+                {
+                    NoteOffArg offArg = new(holded);
+                    SF2VoiceManager?.NoteOff([offArg]);
+                    holded = null;
+                }
+
+                FuncVoiceManager?.AllNoteOff();
                 provSoundObj = null;
                 selectedObj = null;
                 UpdateChordonym();
@@ -837,8 +939,14 @@ namespace ShasavicMusicMaker.Controller.Score
 
             if (provSoundObj != null)
             {
-                SF2VoiceManager?.AllNoteOff();
-                FuncSynth?.AllNoteOff();
+                //SF2VoiceManager?.AllNoteOff();
+                if (holded is not null)
+                {
+                    NoteOffArg offArg = new(holded);
+                    SF2VoiceManager?.NoteOff([offArg]);
+                    holded = null;
+                }
+                FuncVoiceManager?.AllNoteOff();
                 provSoundObj = null;
                 UpdateChordonym();
             }
