@@ -7,6 +7,8 @@ namespace ShasavicMusicMaker.ScoreData.NoteData
     {
         public float OrgnBaseFreq { get; private set; }
 
+        public int[] Formula { get; private set; }
+
         public Arm Arm { get; private set; }
 
         public ChordonymViewer? Viewer { get; set; }
@@ -15,10 +17,18 @@ namespace ShasavicMusicMaker.ScoreData.NoteData
         /// 底音の周波数を指定して新たにコードニムを作る
         /// </summary>
         /// <param name="freq">底音の周波数</param>
-        public Chordonym(float freq)
+        public Chordonym(float freq, int[]? formula = null)
         {
             OrgnBaseFreq = freq;
             Arm = new Arm();
+
+            formula ??= [];
+            List<int> tmp = [.. formula.Take(DimensionInfo.MaxDimension)];
+
+            while (tmp.Count < DimensionInfo.MaxDimension)
+                tmp.Add(0);
+
+            Formula = [.. tmp];
         }
 
         /// <summary>

@@ -1,12 +1,15 @@
-﻿using NAudio.Wave;
+﻿using NAudio.CoreAudioApi;
+using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using SinShasavicSynthSF2.ShasavicObject;
+using SinShasavicSynthSF2.ShasavicObject.Event;
 using SinShasavicSynthSF2.SynthEngineCore.Voice;
+using System.Collections.Concurrent;
 using Timer = System.Timers.Timer;
 
 namespace SinShasavicSynthSF2.SynthEngineCore
 {
-    internal class FunctionVoiceManager
+    public class FunctionVoiceManager
     {
         private enum WaveFunction
         {
@@ -14,116 +17,113 @@ namespace SinShasavicSynthSF2.SynthEngineCore
             Extra
         }
 
-        private class Channel
-        {
-            private WaveFunction function = WaveFunction.NoiseAttackSine;
-            private readonly List<ShasavicNote> stack = [];
-            private readonly MixingSampleProvider mixer;
-            private readonly int sampleRate;
-
-            public Channel(MixingSampleProvider mixer, int sampleRate = 44100)
-            {
-                this.mixer = mixer;
-                this.sampleRate = sampleRate;
-            }
-
-            public void ChangeWaveFunction(WaveFunction function)
-            {
-                this.function = function;
-            }
-
-            public void NoteOn(float baseFreq, int[] formula, int vel)
-            {
-                ShasavicTone tone = new(baseFreq, formula);
-                NoteVoiceBase voice;
-
-                switch (function)
-                {
-                    case WaveFunction.NoiseAttackSine:
-                        voice = new NoiseAttackSineVoice(tone.ResultFreq, vel / 127f, sampleRate);
-                        break;
-                    default:
-                        voice = new ExtraWaveVoice(tone.ResultFreq, vel / 127f, sampleRate);
-                        break;
-                }
-
-                ShasavicNote note = new(mixer, tone, [voice]);
-                stack.Add(note);
-                note.NoteOn();
-            }
-
-            public void NoteOff(float baseFreq, int[] formula)
-            {
-                if (stack.FirstOrDefault(note => note.tone.IsEqualTone(baseFreq, formula)) is ShasavicNote note)
-                {
-                    note.NoteOff();
-                }
-            }
-
-            public void AllNoteOff()
-            {
-                foreach (ShasavicNote note in stack)
-                    note.NoteOff();
-            }
-
-            public void Cleanup()
-            {
-                foreach (ShasavicNote note in stack)
-                {
-                    note.Cleanup();
-
-                    if (note.IsFinished)
-                        stack.Remove(note);
-                }
-            }
-        }
-
         private readonly int SampleRate;
-        private readonly MixingSampleProvider mixer;
-        private readonly WaveOutEvent output;
-        private readonly Channel[] channels = new Channel[16];
+        private readonly MixingSampleProvider _mixer;
+        private readonly WasapiOut output;
+        private WaveFunction[] _functions = new WaveFunction[16];
+        private readonly List<ShasavicNote> _current = [];
         private readonly Timer cleanupTimer;
+        private readonly BlockingCollection<Action> commandQueue = [];
+        private readonly Thread audioThread;
 
-        public FunctionVoiceManager(float volume = 0.5f, int samplerate = 44100)
+        public FunctionVoiceManager(int samplerate = 44100)
         {
             SampleRate = samplerate;
-            mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(SampleRate, 2))
+            _mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(SampleRate, 2))
             {
                 ReadFully = true
             };
-            output = new WaveOutEvent();
-            output.Init(mixer);
-            output.Volume = volume;
+            output = new WasapiOut(AudioClientShareMode.Shared, true, 5);
+            output.Init(_mixer);
             output.Play();
 
             for (int i = 0; i < 16; i++)
-                channels[i] = new(mixer, SampleRate);
+                _functions[i] = WaveFunction.NoiseAttackSine;
 
             cleanupTimer = new Timer(100); // 100msごと
             cleanupTimer.Elapsed += (s, e) => Cleanup();
             cleanupTimer.Start();
+
+            audioThread = new Thread(AudioThreadLoop)
+            {
+                IsBackground = true
+            };
+            audioThread.Start();
         }
 
-        public void NoteOn(int ch, float baseFreq, int[] formula, int vel)
+        private void AudioThreadLoop()
         {
-            channels[ch].NoteOn(baseFreq, formula, vel);
+            foreach (Action cmd in commandQueue.GetConsumingEnumerable())
+            {
+                cmd();
+            }
         }
 
-        public void NoteOff(int ch, float baseFreq, int[] formula)
+        public void NoteOn(IEnumerable<NoteOnArg> args)
         {
-            channels[ch].NoteOff(baseFreq, formula);
+            commandQueue.Add(() => DoNoteOn(args));
+        }
+
+        public void NoteOff(IEnumerable<NoteOffArg> args)
+        {
+            commandQueue.Add(() => DoNoteOff(args));
+        }
+
+        private void DoNoteOn(IEnumerable<NoteOnArg> args)
+        {
+            List<ShasavicNote> notes = [];
+
+            foreach (NoteOnArg arg in args)
+            {
+                ShasavicTone tone = new(arg.BaseFrequency, arg.Formula);
+                NoteVoiceBase voice = _functions[arg.Channel] switch
+                {
+                    WaveFunction.NoiseAttackSine => new NoiseAttackSineVoice(tone.ResultFreq, arg.Velocity / 127f, SampleRate),
+                    _ => new ExtraWaveVoice(tone.ResultFreq, arg.Velocity / 127f, SampleRate),
+                };
+                ShasavicNote note = new(_mixer, arg.Channel, tone, [voice]);
+                notes.Add(note);
+                _current.Add(note);
+            }
+
+            foreach (ShasavicNote note in notes)
+                note.NoteOn();
+        }
+
+        private void DoNoteOff(IEnumerable<NoteOffArg> args)
+        {
+            List<ShasavicNote> notes = [];
+
+            foreach (NoteOffArg arg in args)
+            {
+                if (_current.FirstOrDefault(note => note.IsApplicable(arg)) is ShasavicNote note)
+                {
+                    notes.Add(note);
+                    _current.Remove(note);
+                }
+            }
+
+            foreach (ShasavicNote note in notes)
+                note.NoteOff();
         }
 
         public void AllNoteOff()
         {
-            foreach (Channel channel in channels)
-                channel.AllNoteOff();
+            foreach (ShasavicNote note in _current)
+                note.NoteOff();
+
+            _current.Clear();
         }
 
         public void Cleanup()
         {
-            foreach (Channel channel in channels)
-                channel.Cleanup();
+            foreach (ShasavicNote note in _current)
+            {
+                note.Cleanup();
+
+                if (note.IsFinished)
+                    _current.Remove(note);
+            }
         }
     }
 }

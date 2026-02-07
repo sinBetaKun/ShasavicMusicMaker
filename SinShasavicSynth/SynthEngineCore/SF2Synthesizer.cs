@@ -1,34 +1,30 @@
 ﻿using NAudio.Mixer;
 using NAudio.Wave;
+using SinShasavicSynthSF2.ShasavicObject.Event;
 
 namespace SinShasavicSynthSF2.SynthEngineCore
 {
     public class SF2Synthesizer
     {
         private readonly SF2VoiceManager _voiceManager = new();
-        private readonly WaveOutEvent _output;
 
         public SF2Synthesizer()
         {
-            _output = new WaveOutEvent();
-            _output.Init(_voiceManager);
-            _output.Volume = 0.3f; // 0.0（無音）〜1.0（最大）
-            _output.Play();
         }
 
         public void LoadSoundFontList(IEnumerable<string> paths)
         {
-            _voiceManager.LoadSoundFontList(paths);
+            _voiceManager.LoadSF2List(paths);
         }
 
-        public bool NoteOn(int ch, float baseFreq, int[] formula, byte vel)
+        public void NoteOn(IEnumerable<NoteOnArg> args)
         {
-            return _voiceManager.NoteOn(ch, baseFreq, formula, vel);
+            _voiceManager.NoteOn(args);
         }
 
-        public bool NoteOff(int ch, float baseFreq, int[] formula)
+        public void NoteOff(IEnumerable<NoteOffArg> args)
         {
-            return _voiceManager.NoteOff(ch, baseFreq, formula);
+            _voiceManager.NoteOff(args);
         }
 
         public void AllNoteOff()

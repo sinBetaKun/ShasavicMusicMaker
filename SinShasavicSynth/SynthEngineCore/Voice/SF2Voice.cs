@@ -1,18 +1,17 @@
 ﻿using NAudio.Wave;
 using SinShasavicSynthSF2.SoundFont.SF2Data.BuiltData;
-using System.Numerics;
 
 namespace SinShasavicSynthSF2.SynthEngineCore.Voice
 {
-    internal class StereoVoice : NoteVoiceBase
+    internal class SF2Voice : NoteVoiceBase
     {
         private readonly EnvelopeGenerator ampEnvelope;
 
         private readonly float[] sampleBuffer_L;
         private readonly float[] sampleBuffer_R;
         private readonly int sampleRate;
-        private float position_L;
-        private float position_R;
+        private double position_L;
+        private double position_R;
         private readonly bool isLooping_L;
         private readonly bool isLooping_R;
         private readonly int loopStart_L;
@@ -20,14 +19,16 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
         private readonly int loopEnd_L;
         private readonly int loopEnd_R;
         private readonly float constPitchRatio;
+        private readonly float manegerVol;
 
         public override WaveFormat WaveFormat { get; }
 
         private bool isFinished_L = false;
         private bool isFinished_R = false;
 
-        public StereoVoice(BuiltSF2 builtData, InstrumentRegion region, float pitch = 1.0f, float vol = 1.0f)
+        public SF2Voice(float mVol, BuiltSF2 builtData, InstrumentRegion region, float pitch = 1.0f, float vol = 1.0f)
         {
+            manegerVol = mVol;
             constPitchRatio = DefaultPitchCalculater.Calc(region) * pitch;
             ampEnvelope = new(region);
 
@@ -35,12 +36,9 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
             {
                 case 1:
                     SampleHeader_b header = region.SmplHdrs[0];
-
+                    sampleBuffer_L = sampleBuffer_R = builtData.GetSample(header);
                     uint start = header.Start;
-                    uint end = header.End;
-                    uint length = end - start;
-                    sampleBuffer_L = sampleBuffer_R = new float[length];
-                    Array.Copy(builtData.Samples, start, sampleBuffer_L, 0, length);
+                    uint length = header.End - start;
 
                     for (int i = 0; i < length; i++)
                     {
@@ -61,12 +59,9 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
                 case 2:
                     SampleHeader_b header_L = region.SmplHdrs[0];
                     SampleHeader_b header_R = region.SmplHdrs[1];
-
+                    sampleBuffer_L = builtData.GetSample(header_L);
                     uint start_L = header_L.Start;
-                    uint end_L = header_L.End;
-                    uint length_L = end_L - start_L;
-                    sampleBuffer_L = new float[length_L];
-                    Array.Copy(builtData.Samples, start_L, sampleBuffer_L, 0, length_L);
+                    uint length_L = header_L.End - start_L;
 
                     for (int i = 0; i < length_L; i++)
                     {
@@ -75,11 +70,9 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
                         else if (sampleBuffer_L[i] > 1) sampleBuffer_L[i] = 1;
                     }
 
+                    sampleBuffer_R = builtData.GetSample(header_R);
                     uint start_R = header_R.Start;
-                    uint end_R = header_R.End;
-                    uint length_R = end_R - start_R;
-                    sampleBuffer_R = new float[length_R];
-                    Array.Copy(builtData.Samples, start_R, sampleBuffer_R, 0, length_R);
+                    uint length_R = header_R.End - start_R;
 
                     for (int i = 0; i < length_R; i++)
                     {
@@ -181,9 +174,9 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
                     {
                         int i1 = (int)position_L;
                         int i2 = (i1 + 1) % sampleBuffer_L.Length;
-                        float frac = position_L - i1;
+                        double frac = position_L - i1;
                         buffer[offset + samplesWritten * 2] = 
-                            envelopeValue * (sampleBuffer_L[i1] * (1 - frac) + sampleBuffer_L[i2] * frac);
+                            (float)(envelopeValue * (sampleBuffer_L[i1] * (1 - frac) + sampleBuffer_L[i2] * frac)) * manegerVol;
                     }
 
                     position_L += constPitchRatio;
@@ -203,9 +196,9 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
                     {
                         int i1 = (int)position_R;
                         int i2 = (i1 + 1) % sampleBuffer_R.Length;
-                        float frac = position_R - i1;
+                        double frac = position_R - i1;
                         buffer[offset + samplesWritten * 2 + 1] =
-                            envelopeValue * (sampleBuffer_R[i1] * (1 - frac) + sampleBuffer_R[i2] * frac);
+                            (float)(envelopeValue * (sampleBuffer_R[i1] * (1 - frac) + sampleBuffer_R[i2] * frac)) * manegerVol;
                     }
 
                     position_R += constPitchRatio;

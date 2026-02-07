@@ -55,6 +55,7 @@ namespace ShasavicMusicMaker.ScoreData.NoteData
             Body = body;
             Bcp = new(origin.Bcp);
             Arms = new List<Arm>(origin.Arms.Count);
+            Muted = origin.Muted;
 
             foreach (Arm children in origin.Arms)
             {
@@ -73,7 +74,8 @@ namespace ShasavicMusicMaker.ScoreData.NoteData
         {
             Arm clone = new()
             {
-                Bcp = new(Bcp)
+                Bcp = new(Bcp),
+                Muted = Muted
             };
 
             foreach (Arm arm in Arms)
@@ -96,7 +98,8 @@ namespace ShasavicMusicMaker.ScoreData.NoteData
             Arm clone = new()
             {
                 Body = body,
-                Bcp = new(Bcp)
+                Bcp = new(Bcp),
+                Muted = Muted
             };
 
             foreach (Arm arm in Arms)

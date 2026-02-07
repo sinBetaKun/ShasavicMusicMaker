@@ -1,13 +1,15 @@
-﻿using System.Collections.Immutable;
-using System.Text;
+﻿using System.Text;
 
 namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Sdta
 {
     internal class SmplChunk
     {
-        public short[] Samples { get; init; }
+        /// <summary>
+        /// サンプル波形データの開始位置
+        /// </summary>
+        public long SamplePos { get; init; }
 
-        public readonly uint Size;
+        public uint Size { get; init; }
 
         static string ID => "smpl";
 
@@ -19,13 +21,8 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData.Sdta
                 throw new InvalidDataException($"{ID} chunk isn't found.");
 
             Size = reader.ReadUInt32();
-            uint sampleCnt = Size / 2;
-            Samples = new short[sampleCnt];
-
-            for (uint i = 0; i < sampleCnt; i++)
-            {
-                Samples[i] = reader.ReadInt16();
-            }
+            SamplePos = reader.BaseStream.Position;
+            reader.BaseStream.Seek(Size, SeekOrigin.Current);
         }
     }
 }

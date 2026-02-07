@@ -39,9 +39,9 @@ namespace ShasavicMusicMaker.Controller.Score
         public event EventHandler? PitchLineUnmuted;
         public event EventHandler? PitchLineRemoved;
 
-        internal void BootPitchLineEditor(Arm arm)
+        internal void BootPitchLineEditor(Arm arm, Chordonym chordonym)
         {
-            MakeFormula(arm);
+            MakeFormula(arm, chordonym);
 
             if (arm.Muted)
             {
@@ -68,7 +68,7 @@ namespace ShasavicMusicMaker.Controller.Score
             }
         }
 
-        private void MakeFormula(Arm arm)
+        private void MakeFormula(Arm arm, Chordonym chordonym)
         {
             FormulaPanel.Children.Clear();
             Canvas[][] symbols = [
@@ -79,7 +79,7 @@ namespace ShasavicMusicMaker.Controller.Score
                 [(Canvas)dimSymbol["m5d"], (Canvas)dimSymbol["m5d_up"], (Canvas)dimSymbol["m5d_down"]],
                 [(Canvas)dimSymbol["m6d"], (Canvas)dimSymbol["m6d_up"], (Canvas)dimSymbol["m6d_down"]],
                 ];
-            BaseAndFormula baf = BaseAndFormula.CalcBaseAndFomulaOfArm(arm);
+            BaseAndFormula baf = BaseAndFormula.CalcBaseAndFomulaOfArm(arm, chordonym);
             bool tone = true;
 
             for (int i = 0; i < DimensionInfo.MaxDimension; i++)

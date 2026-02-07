@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ShasavicMusicMaker.Controller.Score"
         mc:Ignorable="d"
-        Title="ChordonymTest" Height="450" Width="800" Background="Black">
+        Title="ChordonymTest" Height="450" Width="800" Background="Black"
+        Closed="Window_Closed">
     <DockPanel>
         <StackPanel DockPanel.Dock="Left">
             <Button x:Name="add1d" Content="1d" Click="Add_1d_Click"/>

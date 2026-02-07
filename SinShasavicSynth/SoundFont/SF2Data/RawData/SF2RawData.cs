@@ -11,6 +11,8 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData
 {
     internal class SF2RawData
     {
+        public string Path { get; init; }
+
         public SdtaChunk Sdta { get; init; }
         public PdtaChunk Pdta { get; init; }
 
@@ -18,6 +20,8 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.RawData
         {
             using (BinaryReader reader = new(File.OpenRead(path)))
             {
+                Path = path;
+
                 string groupID = Encoding.ASCII.GetString(reader.ReadBytes(4));
 
                 if (groupID != "RIFF")
