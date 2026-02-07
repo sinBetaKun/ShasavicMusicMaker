@@ -19,14 +19,16 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
         private readonly int loopEnd_L;
         private readonly int loopEnd_R;
         private readonly float constPitchRatio;
+        private readonly float manegerVol;
 
         public override WaveFormat WaveFormat { get; }
 
         private bool isFinished_L = false;
         private bool isFinished_R = false;
 
-        public SF2Voice(BuiltSF2 builtData, InstrumentRegion region, float pitch = 1.0f, float vol = 1.0f)
+        public SF2Voice(float mVol, BuiltSF2 builtData, InstrumentRegion region, float pitch = 1.0f, float vol = 1.0f)
         {
+            manegerVol = mVol;
             constPitchRatio = DefaultPitchCalculater.Calc(region) * pitch;
             ampEnvelope = new(region);
 
@@ -174,7 +176,7 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
                         int i2 = (i1 + 1) % sampleBuffer_L.Length;
                         double frac = position_L - i1;
                         buffer[offset + samplesWritten * 2] = 
-                            (float)(envelopeValue * (sampleBuffer_L[i1] * (1 - frac) + sampleBuffer_L[i2] * frac));
+                            (float)(envelopeValue * (sampleBuffer_L[i1] * (1 - frac) + sampleBuffer_L[i2] * frac)) * manegerVol;
                     }
 
                     position_L += constPitchRatio;
@@ -196,7 +198,7 @@ namespace SinShasavicSynthSF2.SynthEngineCore.Voice
                         int i2 = (i1 + 1) % sampleBuffer_R.Length;
                         double frac = position_R - i1;
                         buffer[offset + samplesWritten * 2 + 1] =
-                            (float)(envelopeValue * (sampleBuffer_R[i1] * (1 - frac) + sampleBuffer_R[i2] * frac));
+                            (float)(envelopeValue * (sampleBuffer_R[i1] * (1 - frac) + sampleBuffer_R[i2] * frac)) * manegerVol;
                     }
 
                     position_R += constPitchRatio;

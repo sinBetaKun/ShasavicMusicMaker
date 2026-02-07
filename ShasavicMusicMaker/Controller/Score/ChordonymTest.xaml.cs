@@ -25,13 +25,13 @@ namespace ShasavicMusicMaker.Controller.Score
             InitializeComponent();
             _func_voiceManager = new();
             _sf_voiceManager = new();
-            chordonym = new(432);
+            chordonym = new(440);
             commandStucker = new();
             commandStucker.CommandSubscribed += UpdateUndoRedoButton;
             Viewer.SF2VoiceManager = _sf_voiceManager;
             Viewer.FuncVoiceManager = _func_voiceManager;
             Viewer.SetCommandStucker(commandStucker);
-            Viewer.DataContext = chordonym;
+            Viewer.SetChordonym(chordonym);
             Viewer.SetSelectorVerticalEdge(1000, -1000);
             Viewer.ChordonymChanged += PreloadChordonym;
         }
@@ -158,6 +158,7 @@ namespace ShasavicMusicMaker.Controller.Score
                     arms2 = [];
                 }
 
+                _sf_voiceManager.ResetCache();
                 _sf_voiceManager.Preload(args);
             }
         }

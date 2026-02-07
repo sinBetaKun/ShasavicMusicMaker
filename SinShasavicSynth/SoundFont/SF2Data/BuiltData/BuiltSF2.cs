@@ -1,5 +1,4 @@
-﻿using NAudio.SoundFont;
-using SinShasavicSynthSF2.SoundFont.SF2Data.RawData;
+﻿using SinShasavicSynthSF2.SoundFont.SF2Data.RawData;
 using SinShasavicSynthSF2.SynthEngineCore.Voice;
 using System.Collections.Concurrent;
 using System.IO.MemoryMappedFiles;
@@ -39,6 +38,11 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.BuiltData
                 _preloadQueue.Add(header);
         }
 
+        public void ResetCache()
+        {
+            cache.Clear();
+        }
+
         private float[] ReadSample(uint start, uint count)
         {
             float[] result = new float[count];
@@ -73,7 +77,7 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.BuiltData
             }
         }
 
-        public List<NoteVoiceBase> GetVoices(ushort presetNo, ushort bank, byte key, byte vel, float pitch = 1.0f)
+        public List<NoteVoiceBase> GetVoices(float mVol, ushort presetNo, ushort bank, byte key, byte vel, float pitch = 1.0f)
         {
             if (GetKeyCompleter(presetNo, bank, key, vel) is not KeyCompleter completer)
                 return [];
@@ -82,7 +86,7 @@ namespace SinShasavicSynthSF2.SoundFont.SF2Data.BuiltData
 
             foreach (InstrumentRegion iRegion in completer.Regions)
             {
-                SF2Voice voice = new(this, iRegion, pitch * completer.Pitch, vel);
+                SF2Voice voice = new(mVol, this, iRegion, pitch * completer.Pitch);
                 voices.Add(voice);
             }
 

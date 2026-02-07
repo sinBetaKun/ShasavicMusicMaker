@@ -4,8 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ShasavicMusicMaker.Controller.Score"
-             mc:Ignorable="d"
-             DataContextChanged="UserControl_DataContextChanged">
+             mc:Ignorable="d">
     <Grid x:Name="RootGrid">
         <Canvas>
             <Line x:Name="ActionPitchLine" Stroke="Red" StrokeThickness="8" X1="-2" X2="102" Visibility="Hidden"/>

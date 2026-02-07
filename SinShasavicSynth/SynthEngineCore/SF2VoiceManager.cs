@@ -15,12 +15,14 @@ namespace SinShasavicSynthSF2.SynthEngineCore
         private readonly WasapiOut _output;
         private readonly MixingSampleProvider _mixer;
         private readonly List<BuiltSF2> _builtSFs = [];
-        private readonly List<ShasavicNote> _current = [];
+        private readonly List<NoteOnArg> _unsolvedNoteOnArgs = [];
+        private readonly List<ShasavicNote> _holdingNotes = [];
         private readonly Timer _cleanupTimer;
         private readonly BlockingCollection<Action> commandQueue = [];
         private readonly Thread audioThread;
+        public float Volume { get; set; } = 0.3f;
 
-        public bool AnySF2sSeted => _builtSFs.Any();
+        public bool AnySF2sSeted => _builtSFs.Count != 0;
 
         public SF2VoiceManager()
         {
@@ -30,7 +32,6 @@ namespace SinShasavicSynthSF2.SynthEngineCore
             };
             _output = new WasapiOut(AudioClientShareMode.Shared, true, 5);
             _output.Init(_mixer);
-            _output.Volume = 0.000001f;
             _output.Play();
 
             _cleanupTimer = new Timer(100); // 100msごと
@@ -90,6 +91,12 @@ namespace SinShasavicSynthSF2.SynthEngineCore
             }
         }
 
+        public void ResetCache()
+        {
+            foreach (BuiltSF2 builtSF2 in _builtSFs)
+                builtSF2.ResetCache();
+        }
+
         public void NoteOn(IEnumerable<NoteOnArg> args)
         {
             commandQueue.Add(() => DoNoteOn(args));
@@ -106,21 +113,40 @@ namespace SinShasavicSynthSF2.SynthEngineCore
             {
                 if (builtSF.CheckPreset(0, 0))
                 {
+                    List<NoteOnArg> arglist = [.. args];
                     List<ShasavicNote> notes = [];
 
-                    foreach (NoteOnArg arg in args)
+                    lock(_unsolvedNoteOnArgs)
+                        _unsolvedNoteOnArgs.AddRange(arglist);
+
+                    foreach (NoteOnArg arg in arglist)
                     {
                         ShasavicTone tone = new(arg.BaseFrequency, arg.Formula);
                         float fkey = MathF.Round(69 + 12 * MathF.Log2(tone.ResultFreq / 440.0f));
                         byte key = (byte)(fkey < 0 ? 0 : fkey > 127 ? 127 : fkey);
                         float pitch = tone.ResultFreq / (440.0f * MathF.Pow(2.0f, (key - 69) / 12.0f));
-                        ShasavicNote note = new(_mixer, arg.Channel, tone, builtSF.GetVoices(0, 0, key, arg.Velocity, pitch));
+                        ShasavicNote note = new(_mixer, arg.Channel, tone, builtSF.GetVoices(Volume, 0, 0, key, arg.Velocity, pitch));
                         notes.Add(note);
-                        _current.Add(note);
                     }
 
-                    foreach (ShasavicNote note in notes)
-                        note.NoteOn();
+                    lock (_unsolvedNoteOnArgs)
+                    {
+                        for (int i = 0; i < arglist.Count; i++)
+                        {
+                            NoteOnArg arg = arglist[i];
+
+                            if (_unsolvedNoteOnArgs.Contains(arg))
+                            {
+                                ShasavicNote note = notes[i];
+
+                                lock (_holdingNotes)
+                                    _holdingNotes.Add(note);
+
+                                note.NoteOn();
+                                _unsolvedNoteOnArgs.Remove(arg);
+                            }
+                        }
+                    }
 
                     break;
                 }
@@ -131,12 +157,19 @@ namespace SinShasavicSynthSF2.SynthEngineCore
         {
             List<ShasavicNote> notes = [];
 
-            foreach (NoteOffArg arg in args)
+            lock (_unsolvedNoteOnArgs)
             {
-                if (_current.FirstOrDefault(note => note.IsApplicable(arg)) is ShasavicNote note)
+                foreach (NoteOffArg arg in args)
                 {
-                    notes.Add(note);
-                    _current.Remove(note);
+                    if (_holdingNotes.FirstOrDefault(note => note.IsApplicable(arg)) is ShasavicNote note)
+                    {
+                        notes.Add(note);
+                        _holdingNotes.Remove(note);
+                    }
+                    else if (_unsolvedNoteOnArgs.FirstOrDefault(onArg => onArg.IsApplicable(arg)) is NoteOnArg onArg)
+                    {
+                        _unsolvedNoteOnArgs.Remove(onArg);
+                    }
                 }
             }
 
@@ -146,17 +179,17 @@ namespace SinShasavicSynthSF2.SynthEngineCore
 
         public void AllNoteOff()
         {
-            foreach (ShasavicNote note in _current)
+            foreach (ShasavicNote note in _holdingNotes)
                 note.NoteOff();
 
-            _current.Clear();
+            _holdingNotes.Clear();
         }
 
         public void Cleanup()
         {
             List<ShasavicNote> toRemove = [];
 
-            foreach (ShasavicNote note in _current)
+            foreach (ShasavicNote note in _holdingNotes)
             {
                 note.Cleanup();
 
@@ -165,7 +198,7 @@ namespace SinShasavicSynthSF2.SynthEngineCore
             }
 
             foreach (ShasavicNote note in toRemove)
-                _current.Remove(note);
+                _holdingNotes.Remove(note);
         }
 
         public void Dispose()

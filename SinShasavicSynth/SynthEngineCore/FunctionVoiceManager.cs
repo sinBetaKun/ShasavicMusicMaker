@@ -26,7 +26,7 @@ namespace SinShasavicSynthSF2.SynthEngineCore
         private readonly BlockingCollection<Action> commandQueue = [];
         private readonly Thread audioThread;
 
-        public FunctionVoiceManager(float volume = 0.5f, int samplerate = 44100)
+        public FunctionVoiceManager(int samplerate = 44100)
         {
             SampleRate = samplerate;
             _mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(SampleRate, 2))
@@ -35,7 +35,6 @@ namespace SinShasavicSynthSF2.SynthEngineCore
             };
             output = new WasapiOut(AudioClientShareMode.Shared, true, 5);
             output.Init(_mixer);
-            output.Volume = volume;
             output.Play();
 
             for (int i = 0; i < 16; i++)

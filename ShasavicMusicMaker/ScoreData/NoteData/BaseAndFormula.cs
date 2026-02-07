@@ -65,7 +65,7 @@ namespace ShasavicMusicMaker.ScoreData.NoteData
         /// </summary>
         /// <param name="arm">底音と組成式を求めたい Arm</param>
         /// <returns>渡された Arm の底音と組成式</returns>
-        public static BaseAndFormula CalcBaseAndFomulaOfArm(Arm arm)
+        public static BaseAndFormula CalcBaseAndFomulaOfArm(Arm arm, Chordonym? chordonym = null)
         {
             Arm _base = arm;
             int[] formula = new int[DimensionInfo.MaxDimension];
@@ -80,6 +80,10 @@ namespace ShasavicMusicMaker.ScoreData.NoteData
                 _base = _base.Body;
             }
 
+            if (chordonym is not null)
+                for (int i = 0; i < DimensionInfo.MaxDimension; i++)
+                    formula[i] += chordonym.Formula[i];
+
             return new(_base, formula);
         }
 
@@ -88,9 +92,9 @@ namespace ShasavicMusicMaker.ScoreData.NoteData
         /// </summary>
         /// <param name="scrLine">底音と組成式を求めたい ScoreLine</param>
         /// <returns>渡された ScoreLine の底音と組成式</returns>
-        public static BaseAndFormula CalcBaseAndFomulaOfScoreLine(ScoreLine scrLine)
+        public static BaseAndFormula CalcBaseAndFomulaOfScoreLine(ScoreLine scrLine, Chordonym? chordonym = null)
         {
-            BaseAndFormula bas = CalcBaseAndFomulaOfArm(scrLine.Body);
+            BaseAndFormula bas = CalcBaseAndFomulaOfArm(scrLine.Body, chordonym);
             bas.Formula[scrLine.Dimension] += scrLine.Sceding;
             return bas;
         }

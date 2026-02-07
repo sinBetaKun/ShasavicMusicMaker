@@ -9,5 +9,13 @@
         public int[] Formula { get; init; } = fml;
 
         public byte Velocity { get; init; } = vel;
+
+        public bool IsApplicable(NoteOffArg arg)
+        {
+            if (Channel == arg.Channel && BaseFrequency == arg.BaseFrequency)
+                return Formula.SequenceEqual(arg.Formula);
+
+            return false;
+        }
     }
 }
