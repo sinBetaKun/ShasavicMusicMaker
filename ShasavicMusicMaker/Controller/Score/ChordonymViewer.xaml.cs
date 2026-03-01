@@ -71,10 +71,17 @@ namespace ShasavicMusicMaker.Controller.Score
         }
 
         public int ScoreLineDimension { get; private set; } = 0;
+        public int MaxKin { get; private set; } = -1;
 
         public void SetScoreLineDimension(int value)
         {
             ScoreLineDimension = value;
+            UpdateScoreLines();
+        }
+
+        public void SetMaxKin(int value)
+        {
+            MaxKin = value;
             UpdateScoreLines();
         }
 
